@@ -1,26 +1,228 @@
-const items=[
-{title:"বাংলাদেশি হস্তশিল্প",desc:"স্থানীয় কারুশিল্প, উপহার ও ঘর সাজানোর অনুপ্রেরণা।",cat:"bd",emoji:"🧺",tag:"Bangladesh",url:"#"},
-{title:"দৈনন্দিন প্রয়োজনীয় পণ্য",desc:"প্রয়োজনীয় জিনিসের তালিকা ও কেনাকাটার ধারণা।",cat:"bd",emoji:"🛍️",tag:"Bangladesh",url:"#"},
-{title:"Global Tech Picks",desc:"মোবাইল অ্যাকসেসরিজ ও স্মার্ট গ্যাজেট আবিষ্কার করুন।",cat:"global",emoji:"🎧",tag:"Global",url:"#"},
-{title:"Home & Living",desc:"ঘর, রান্নাঘর ও জীবনযাপনের দরকারি পণ্য।",cat:"global",emoji:"🏡",tag:"Global",url:"#"},
-{title:"Fashion Finds",desc:"পোশাক, জুতা ও স্টাইলের নতুন ধারণা।",cat:"fashion",emoji:"👟",tag:"Fashion",url:"#"},
-{title:"Beauty & Care",desc:"ব্যক্তিগত যত্ন ও সৌন্দর্য পণ্যের গাইড।",cat:"fashion",emoji:"✨",tag:"Fashion",url:"#"},
-{title:"Smartphone Guide",desc:"ফোন কেনার আগে ফিচার ও বাজেট তুলনা করুন।",cat:"tech",emoji:"📱",tag:"Technology",url:"#"},
-{title:"Useful Apps",desc:"কাজ, পড়াশোনা ও দৈনন্দিন জীবনের অ্যাপ।",cat:"tech",emoji:"💡",tag:"Technology",url:"#"},
-{title:"ছোট্ট ভালোবাসার গল্প",desc:"সম্পর্ক, অনুভূতি ও জীবনের ছোট গল্প।",cat:"stories",emoji:"📖",tag:"Stories",url:"#"},
-{title:"জীবন থেকে শেখা",desc:"অনুপ্রেরণামূলক গল্প ও ইতিবাচক ভাবনা।",cat:"stories",emoji:"🌱",tag:"Stories",url:"#"},
-{title:"ইসলামিক জ্ঞান",desc:"বিশ্বস্ত সূত্রভিত্তিক ইসলামিক শিক্ষা ও পাঠ।",cat:"islamic",emoji:"🕌",tag:"Islamic",url:"#"},
-{title:"দৈনিক ভালো অভ্যাস",desc:"নৈতিকতা, কৃতজ্ঞতা ও সুন্দর আচরণের কথা।",cat:"islamic",emoji:"🌙",tag:"Islamic",url:"#"}
-];
-let category="all",language="bn";
-const grid=document.querySelector("#grid"),search=document.querySelector("#search");
-function render(){const q=search.value.trim().toLowerCase();const found=items.filter(x=>(category==="all"||x.cat===category)&&(`${x.title} ${x.desc} ${x.tag}`).toLowerCase().includes(q));
-grid.innerHTML=found.length?found.map(x=>`<article class="card"><div class="art">${x.emoji}</div><div class="card-body"><span class="badge">${x.tag}</span><h3>${x.title}</h3><p>${x.desc}</p><a class="${x.url==="#"?"disabled":""}" href="${x.url}" ${x.url==="#"?'aria-disabled="true" onclick="event.preventDefault();alert(\'এই কার্ডে আপনার affiliate বা বিস্তারিত পণ্যের লিংক যোগ করুন।\')"': 'target="_blank" rel="noopener noreferrer"'}>বিস্তারিত দেখুন ↗</a></div></article>`).join(""):'<div class="empty">কোনো ফলাফল পাওয়া যায়নি। অন্য শব্দ দিয়ে খুঁজুন।</div>';}
-document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>{document.querySelector(".tab.active").classList.remove("active");b.classList.add("active");category=b.dataset.cat;render()}));
-search.addEventListener("input",render);document.querySelector("#searchBtn").addEventListener("click",render);
-document.querySelector("#langBtn").addEventListener("click",()=>{language=language==="bn"?"en":"bn";document.querySelector("#langBtn").textContent=language==="bn"?"EN":"বাংলা";document.querySelectorAll("[data-bn]").forEach(el=>el.textContent=el.dataset[language]);search.placeholder=language==="bn"?"পণ্য বা বিষয় খুঁজুন...":"Search products or topics...";});
-document.querySelector("#year").textContent=new Date().getFullYear();
-let installPrompt;window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();installPrompt=e;document.querySelector("#installBtn").hidden=false});
-document.querySelector("#installBtn").addEventListener("click",async()=>{if(!installPrompt)return;installPrompt.prompt();await installPrompt.userChoice;installPrompt=null;document.querySelector("#installBtn").hidden=true});
-if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(console.error));
-render();
+(() => {
+  "use strict";
+
+  const config = window.KINIOO7_SUPABASE || {};
+  const SUPABASE_URL = String(config.url || "").replace(/\/$/, "");
+  const SUPABASE_KEY = String(config.publishableKey || "");
+  const grid = document.querySelector("#grid");
+  const search = document.querySelector("#search");
+  const status = document.querySelector("#dataStatus");
+  const resultCount = document.querySelector("#resultCount");
+  const searchBtn = document.querySelector("#searchBtn");
+  const langBtn = document.querySelector("#langBtn");
+  let products = [];
+  let category = "all";
+  let language = "bn";
+
+  const copy = {
+    bn: {
+      loading: "পণ্য লোড হচ্ছে…",
+      ready: "ডেটাবেস থেকে পণ্য দেখানো হচ্ছে।",
+      missingConfig: "Supabase কনফিগারেশন পাওয়া যায়নি। supabase-config.js পরীক্ষা করুন।",
+      error: "পণ্য লোড করা যায়নি। Supabase URL, API key, Data API এবং RLS policy পরীক্ষা করুন।",
+      empty: "এখনো কোনো পণ্য যোগ করা হয়নি। Admin Dashboard তৈরি হলে সেখান থেকে পণ্য যোগ করতে পারবেন।",
+      noResults: "কোনো পণ্য পাওয়া যায়নি। অন্য শব্দ দিয়ে খুঁজুন।",
+      details: "পণ্য দেখুন ↗",
+      noLink: "লিংক যোগ করা হয়নি",
+      results: "টি পণ্য",
+      retry: "আবার চেষ্টা করুন"
+    },
+    en: {
+      loading: "Loading products…",
+      ready: "Showing products from the database.",
+      missingConfig: "Supabase configuration was not found. Check supabase-config.js.",
+      error: "Could not load products. Check the Supabase URL, API key, Data API and RLS policy.",
+      empty: "No products have been added yet. You will be able to add products from the Admin Dashboard when it is built.",
+      noResults: "No products found. Try another search term.",
+      details: "View product ↗",
+      noLink: "No product link",
+      results: "products",
+      retry: "Try again"
+    }
+  };
+
+  function text(key) { return copy[language][key]; }
+  function normalize(value) {
+    return String(value ?? "").toLocaleLowerCase().replace(/[০-৯]/g, d => "০১২৩৪৫৬৭৮৯".indexOf(d)).trim();
+  }
+  function safeUrl(value) {
+    try {
+      const url = new URL(String(value || ""));
+      return url.protocol === "https:" || url.protocol === "http:" ? url.href : "";
+    } catch (_) { return ""; }
+  }
+  function categoryMatches(productCategory, selected) {
+    if (selected === "all") return true;
+    const value = normalize(productCategory);
+    const groups = {
+      bd: ["bd", "bangladesh", "বাংলাদেশ"],
+      global: ["global", "international", "আন্তর্জাতিক"],
+      fashion: ["fashion", "ফ্যাশন", "clothing", "beauty"],
+      tech: ["tech", "technology", "electronics", "প্রযুক্তি", "ইলেকট্রনিক্স"],
+      stories: ["stories", "story", "গল্প"],
+      islamic: ["islamic", "ইসলামিক", "ইসলাম"]
+    };
+    return (groups[selected] || [selected]).some(term => value.includes(normalize(term)));
+  }
+  function formatPrice(price, currency) {
+    if (price === null || price === undefined || price === "") return "";
+    const amount = Number(price);
+    if (!Number.isFinite(amount)) return `${price} ${currency || ""}`.trim();
+    const code = String(currency || "BDT").toUpperCase();
+    try {
+      return new Intl.NumberFormat(language === "bn" ? "bn-BD" : "en-US", {
+        style: "currency", currency: code, maximumFractionDigits: 2
+      }).format(amount);
+    } catch (_) {
+      return `${amount.toLocaleString()} ${code}`;
+    }
+  }
+  function make(tag, className, value) {
+    const node = document.createElement(tag);
+    if (className) node.className = className;
+    if (value !== undefined && value !== null) node.textContent = String(value);
+    return node;
+  }
+  function render() {
+    const query = normalize(search.value);
+    const visible = products.filter(product => {
+      const searchable = normalize([
+        product.name, product.description, product.category,
+        product.brand, product.platform, product.region
+      ].join(" "));
+      return categoryMatches(product.category, category) && (!query || searchable.includes(query));
+    });
+
+    grid.replaceChildren();
+    if (resultCount) resultCount.textContent = `${visible.length} ${text("results")}`;
+
+    if (!visible.length) {
+      const empty = make("div", "empty", products.length ? text("noResults") : text("empty"));
+      grid.appendChild(empty);
+      return;
+    }
+
+    const fragment = document.createDocumentFragment();
+    visible.forEach(product => {
+      const card = make("article", "card");
+      const imageUrl = safeUrl(product.image_url);
+      if (imageUrl) {
+        const imageWrap = make("div", "art image-art");
+        const image = make("img", "product-image");
+        image.src = imageUrl;
+        image.alt = product.name || "Product image";
+        image.loading = "lazy";
+        image.referrerPolicy = "no-referrer";
+        image.addEventListener("error", () => {
+          imageWrap.replaceChildren(make("span", "image-fallback", "🛍️"));
+        }, { once: true });
+        imageWrap.appendChild(image);
+        card.appendChild(imageWrap);
+      } else {
+        card.appendChild(make("div", "art", "🛍️"));
+      }
+
+      const body = make("div", "card-body");
+      const label = [product.platform, product.category].filter(Boolean).join(" • ") || product.region || "Kini007";
+      body.appendChild(make("span", "badge", label));
+      body.appendChild(make("h3", "", product.name || "Unnamed product"));
+      if (product.description) body.appendChild(make("p", "", product.description));
+      const price = formatPrice(product.price, product.currency);
+      if (price) body.appendChild(make("div", "product-price", price));
+      const link = safeUrl(product.product_url);
+      const action = make(link ? "a" : "span", link ? "product-link" : "product-link disabled", link ? text("details") : text("noLink"));
+      if (link) {
+        action.href = link;
+        action.target = "_blank";
+        action.rel = "noopener noreferrer sponsored";
+      }
+      body.appendChild(action);
+      card.appendChild(body);
+      fragment.appendChild(card);
+    });
+    grid.appendChild(fragment);
+  }
+
+  async function loadProducts() {
+    if (!SUPABASE_URL || !SUPABASE_KEY) {
+      status.textContent = text("missingConfig");
+      grid.replaceChildren(make("div", "empty", text("missingConfig")));
+      return;
+    }
+    status.textContent = text("loading");
+    grid.replaceChildren(make("div", "empty", text("loading")));
+
+    const endpoint = `${SUPABASE_URL}/rest/v1/products?select=id,name,description,category,brand,price,currency,image_url,product_url,platform,region,is_active,created_at&is_active=eq.true&order=created_at.desc&limit=500`;
+    try {
+      const response = await fetch(endpoint, {
+        method: "GET",
+        headers: {
+          apikey: SUPABASE_KEY,
+          Authorization: `Bearer ${SUPABASE_KEY}`,
+          Accept: "application/json"
+        },
+        cache: "no-store"
+      });
+      if (!response.ok) {
+        const detail = await response.text().catch(() => "");
+        throw new Error(`Supabase returned ${response.status}: ${detail.slice(0, 240)}`);
+      }
+      const data = await response.json();
+      products = Array.isArray(data) ? data : [];
+      status.textContent = text("ready");
+      render();
+    } catch (error) {
+      console.error("Kini007 product loading error:", error);
+      status.textContent = text("error");
+      grid.replaceChildren(make("div", "empty", text("error")));
+      const retry = make("button", "retry-button", text("retry"));
+      retry.type = "button";
+      retry.addEventListener("click", loadProducts);
+      grid.appendChild(retry);
+    }
+  }
+
+  document.querySelectorAll(".tab").forEach(button => {
+    button.addEventListener("click", () => {
+      document.querySelector(".tab.active")?.classList.remove("active");
+      button.classList.add("active");
+      category = button.dataset.cat || "all";
+      render();
+    });
+  });
+  search.addEventListener("input", render);
+  searchBtn.addEventListener("click", render);
+  search.addEventListener("keydown", event => { if (event.key === "Enter") render(); });
+
+  langBtn.addEventListener("click", () => {
+    language = language === "bn" ? "en" : "bn";
+    langBtn.textContent = language === "bn" ? "EN" : "বাংলা";
+    document.documentElement.lang = language;
+    document.querySelectorAll("[data-bn][data-en]").forEach(element => {
+      element.textContent = element.dataset[language];
+    });
+    search.placeholder = language === "bn" ? "পণ্য বা বিষয় খুঁজুন..." : "Search products or topics...";
+    status.textContent = products.length ? text("ready") : status.textContent;
+    render();
+  });
+
+  document.querySelector("#year").textContent = new Date().getFullYear();
+  let installPrompt;
+  window.addEventListener("beforeinstallprompt", event => {
+    event.preventDefault();
+    installPrompt = event;
+    document.querySelector("#installBtn").hidden = false;
+  });
+  document.querySelector("#installBtn").addEventListener("click", async () => {
+    if (!installPrompt) return;
+    installPrompt.prompt();
+    await installPrompt.userChoice;
+    installPrompt = null;
+    document.querySelector("#installBtn").hidden = true;
+  });
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(console.error));
+  }
+
+  loadProducts();
+})();
