@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#102a43"><title>Kini007 Admin</title>
+<link rel="icon" href="icon.svg" type="image/svg+xml"><link rel="stylesheet" href="admin.css">
+</head>
+<body>
+<div class="login-shell" id="loginShell">
+  <form class="login-card" id="loginForm">
+    <a class="brand" href="index.html"><img src="icon.svg" alt=""><span>Kini007<small>ADMIN CONSOLE</small></span></a>
+    <p class="eyebrow">RESTRICTED ACCESS</p><h1>অ্যাডমিন লগইন</h1>
+    <p class="muted">শুধুমাত্র অনুমোদিত অ্যাডমিন অ্যাকাউন্ট প্রবেশ করতে পারবে।</p>
+    <label>ইমেইল<input id="email" type="email" autocomplete="username" required placeholder="admin@example.com"></label>
+    <label>পাসওয়ার্ড<input id="password" type="password" autocomplete="current-password" required placeholder="আপনার পাসওয়ার্ড"></label>
+    <button class="primary full" type="submit" id="loginBtn">নিরাপদে লগইন করুন</button>
+    <p class="message" id="loginMessage" role="status"></p>
+    <a class="back-link" href="index.html">← মূল ওয়েবসাইটে ফিরে যান</a>
+  </form>
+</div>
+<div class="app-shell" id="appShell" hidden>
+  <aside class="sidebar">
+    <a class="brand side-brand" href="index.html"><img src="icon.svg" alt=""><span>Kini007<small>ADMIN CONSOLE</small></span></a>
+    <div class="side-label">WORKSPACE</div>
+    <button class="nav-item active" data-view="overview">▦ <span>Overview</span></button>
+    <button class="nav-item" data-view="products">▣ <span>Products</span></button>
+    <button class="nav-item" data-view="stores">◈ <span>Store integrations</span></button>
+    <div class="side-bottom"><a href="index.html">↗ Live website</a><button id="logoutBtn" class="logout">↪ Logout</button></div>
+  </aside>
+  <main class="main-area">
+    <header class="main-header"><div><p class="eyebrow">KINI007 MANAGEMENT</p><h1 id="pageTitle">ড্যাশবোর্ড</h1></div><div class="user-chip"><span class="avatar">K</span><span id="adminEmail">Admin</span></div></header>
+    <div class="alert" id="globalMessage" role="status" hidden></div>
+    <section class="view" id="view-overview">
+      <div class="welcome"><div><p class="eyebrow">CONTROL CENTER</p><h2>আপনার Shopping Discovery Platform পরিচালনা করুন</h2><p>পণ্য, স্টোর এবং affiliate link এক জায়গা থেকে নিয়ন্ত্রণ করুন।</p></div><div class="welcome-mark">K7</div></div>
+      <div class="stats"><article class="stat"><span>মোট পণ্য</span><strong id="statProducts">—</strong><small>Database products</small></article><article class="stat"><span>সক্রিয় পণ্য</span><strong id="statActive">—</strong><small>Visible on website</small></article><article class="stat"><span>স্টোর</span><strong id="statStores">—</strong><small>Registered platforms</small></article><article class="stat"><span>বাংলাদেশি পণ্য</span><strong id="statBD">—</strong><small>Bangladesh region</small></article></div>
+      <div class="two-col"><article class="panel"><div class="panel-head"><div><h3>দ্রুত কাজ</h3><p>প্রয়োজনীয় কাজ দ্রুত শুরু করুন।</p></div></div><div class="quick-actions"><button class="quick" data-goto="products">＋ নতুন পণ্য যোগ করুন</button><button class="quick" data-goto="stores">＋ নতুন স্টোর যুক্ত করুন</button><a class="quick" href="index.html">↗ Live website দেখুন</a></div></article>
+      <article class="panel"><div class="panel-head"><div><h3>স্টোর সংযোগ সম্পর্কে</h3><p>কীভাবে অন্য e-commerce platform যুক্ত হবে</p></div></div><p class="help-copy">এখানে Daraz, Amazon, AliExpress বা অন্য স্টোরের নাম, ওয়েবসাইট ও affiliate link সংরক্ষণ করতে পারবেন। স্বয়ংক্রিয় product sync চালু করতে সংশ্লিষ্ট স্টোরের অনুমোদিত API বা product feed access প্রয়োজন। API secret কখনো এই browser page-এ রাখা হবে না।</p></article></div>
+    </section>
+    <section class="view" id="view-products" hidden>
+      <div class="section-toolbar"><div><h2>পণ্য পরিচালনা</h2><p>পণ্য যোগ, পরিবর্তন, সক্রিয় বা মুছে ফেলুন।</p></div><button class="primary" id="newProductBtn">＋ নতুন পণ্য</button></div>
+      <div class="panel"><div class="table-tools"><input id="productSearch" type="search" placeholder="নাম, ব্র্যান্ড বা স্টোর দিয়ে খুঁজুন"><span id="productTotal" class="muted"></span></div><div class="table-wrap"><table><thead><tr><th>পণ্য</th><th>ক্যাটাগরি</th><th>দাম</th><th>স্টোর</th><th>অবস্থা</th><th>কাজ</th></tr></thead><tbody id="productRows"><tr><td colspan="6">লোড হচ্ছে…</td></tr></tbody></table></div></div>
+    </section>
+    <section class="view" id="view-stores" hidden>
+      <div class="section-toolbar"><div><h2>স্টোর ও e-commerce সংযোগ</h2><p>যে সব marketplace বা দোকানের পণ্য Kini007-এ দেখাতে চান সেগুলো এখানে যোগ করুন।</p></div><button class="primary" id="newStoreBtn">＋ নতুন স্টোর</button></div>
+      <div class="notice-box"><strong>গুরুত্বপূর্ণ:</strong> স্টোর যোগ করলেই তাদের সব পণ্য স্বয়ংক্রিয়ভাবে আসবে না। Auto-sync-এর জন্য Daraz/Amazon/AliExpress-এর অনুমোদিত API, affiliate feed বা CSV export access লাগবে। আপাতত স্টোর রেজিস্টার করে তার পণ্য ম্যানুয়ালি যোগ করতে পারবেন।</div>
+      <div class="store-grid" id="storeGrid"><div class="empty-state">স্টোর লোড হচ্ছে…</div></div>
+    </section>
+  </main>
+</div>
+<div class="modal-backdrop" id="productModal" hidden><form class="modal" id="productForm"><div class="modal-head"><div><p class="eyebrow">PRODUCT CATALOG</p><h2 id="productModalTitle">নতুন পণ্য যোগ করুন</h2></div><button type="button" class="icon-btn" data-close="productModal">×</button></div><input type="hidden" id="productId">
+<div class="form-grid"><label class="wide">পণ্যের নাম *<input id="pName" required maxlength="180" placeholder="যেমন: Samsung Galaxy A55"></label><label class="wide">বিবরণ<textarea id="pDescription" rows="2" placeholder="পণ্যের সংক্ষিপ্ত বিবরণ"></textarea></label><label>ক্যাটাগরি *<select id="pCategory" required><option value="tech">Tech</option><option value="fashion">Fashion</option><option value="home">Home & Living</option><option value="beauty">Beauty</option><option value="stories">Stories</option><option value="islamic">Islamic</option><option value="other">Other</option></select></label><label>ব্র্যান্ড<input id="pBrand" placeholder="Samsung"></label><label>দাম<input id="pPrice" type="number" min="0" step="0.01" placeholder="25000"></label><label>মুদ্রা<select id="pCurrency"><option value="BDT">BDT (৳)</option><option value="USD">USD ($)</option><option value="INR">INR (₹)</option><option value="EUR">EUR (€)</option></select></label><label>অঞ্চল<select id="pRegion"><option value="Bangladesh">Bangladesh</option><option value="Global">Global</option></select></label><label>স্টোর / Platform<input id="pPlatform" list="storeOptions" placeholder="Daraz / Amazon / নিজের স্টোর"><datalist id="storeOptions"></datalist></label><label class="wide">Product image URL<input id="pImage" type="url" placeholder="https://...jpg"><small>সরাসরি image URL দিন; image URL না থাকলে ফাঁকা রাখতে পারেন।</small></label><label class="wide">Shopping / Affiliate URL<input id="pUrl" type="url" placeholder="https://..." ><small>ক্রেতা এই লিংকে ক্লিক করে স্টোরের পেজে যাবে।</small></label><label class="check-row wide"><input id="pActive" type="checkbox" checked> ওয়েবসাইটে পণ্যটি দেখান (Active)</label></div><div class="modal-actions"><button type="button" class="secondary" data-close="productModal">বাতিল</button><button class="primary" type="submit" id="saveProductBtn">পণ্য সংরক্ষণ করুন</button></div><p class="message" id="productMessage" role="status"></p></form></div>
+<div class="modal-backdrop" id="storeModal" hidden><form class="modal" id="storeForm"><div class="modal-head"><div><p class="eyebrow">MARKETPLACE DIRECTORY</p><h2>নতুন স্টোর যুক্ত করুন</h2></div><button type="button" class="icon-btn" data-close="storeModal">×</button></div><div class="form-grid"><label class="wide">স্টোরের নাম *<input id="sName" required placeholder="Daraz Bangladesh"></label><label class="wide">ওয়েবসাইট URL *<input id="sUrl" type="url" required placeholder="https://www.daraz.com.bd"></label><label>সংযোগের ধরন<select id="sType"><option value="manual">Manual product entry</option><option value="affiliate">Affiliate link</option><option value="csv">CSV / product feed</option><option value="api">Official API (approval needed)</option></select></label><label>Affiliate / Partner URL<input id="sAffiliate" type="url" placeholder="https://..."></label><label class="wide">নোট<textarea id="sNotes" rows="3" placeholder="API approval status, feed details বা প্রয়োজনীয় নোট"></textarea></label><label class="check-row wide"><input id="sActive" type="checkbox" checked> Active store</label></div><div class="modal-actions"><button type="button" class="secondary" data-close="storeModal">বাতিল</button><button class="primary" type="submit" id="saveStoreBtn">স্টোর সংরক্ষণ করুন</button></div><p class="message" id="storeMessage" role="status"></p></form></div>
+<script src="supabase-config.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="admin.js"></script>
+</body></html>
