@@ -1,0 +1,2 @@
+﻿name,description,category,brand,price,currency,platform,region,image_url,product_url,is_active
+"Sample Product","Short description",tech,Brand,1200,BDT,"Daraz Bangladesh",Bangladesh,https://example.com/image.jpg,https://example.com/product,true
