@@ -5,6 +5,8 @@
   const $ = (id) => document.getElementById(id);
   const loginShell = $("loginShell"), appShell = $("appShell");
   let db = null, currentUser = null, products = [], stores = [];
+  let csvRows = [];
+let csvValidRows = [];
   const showMessage = (id, msg, ok=false) => { const el=$(id); if(el){el.textContent=msg;el.style.color=ok?"#087b5e":"#c24141";} };
   const globalMessage = (msg) => { const el=$("globalMessage");el.hidden=!msg;el.textContent=msg||""; };
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
