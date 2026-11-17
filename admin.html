@@ -25,6 +25,7 @@
     <button class="nav-item active" data-view="overview">▦ <span>Overview</span></button>
     <button class="nav-item" data-view="products">▣ <span>Products</span></button>
     <button class="nav-item" data-view="stores">◈ <span>Store integrations</span></button>
+    <button class="nav-item" data-view="import">⇧ <span>CSV Import</span></button>
     <div class="side-bottom"><a href="index.html">↗ Live website</a><button id="logoutBtn" class="logout">↪ Logout</button></div>
   </aside>
   <main class="main-area">
@@ -39,6 +40,18 @@
     <section class="view" id="view-products" hidden>
       <div class="section-toolbar"><div><h2>পণ্য পরিচালনা</h2><p>পণ্য যোগ, পরিবর্তন, সক্রিয় বা মুছে ফেলুন।</p></div><button class="primary" id="newProductBtn">＋ নতুন পণ্য</button></div>
       <div class="panel"><div class="table-tools"><input id="productSearch" type="search" placeholder="নাম, ব্র্যান্ড বা স্টোর দিয়ে খুঁজুন"><span id="productTotal" class="muted"></span></div><div class="table-wrap"><table><thead><tr><th>পণ্য</th><th>ক্যাটাগরি</th><th>দাম</th><th>স্টোর</th><th>অবস্থা</th><th>কাজ</th></tr></thead><tbody id="productRows"><tr><td colspan="6">লোড হচ্ছে…</td></tr></tbody></table></div></div>
+    </section>
+    <section class="view" id="view-import" hidden>
+      <div class="section-toolbar"><div><h2>CSV দিয়ে পণ্য Import</h2><p>একটি CSV ফাইল থেকে একসঙ্গে অনেক পণ্য যোগ করুন।</p></div><button class="secondary" id="downloadCsvTemplateBtn" type="button">↓ Sample CSV ডাউনলোড</button></div>
+      <div class="notice-box"><strong>কীভাবে ব্যবহার করবেন:</strong> CSV ফাইলে name, category, brand, price, currency, description, platform, region, image_url, product_url এবং is_active কলাম রাখতে পারেন। অন্তত <strong>name</strong> কলামটি প্রয়োজন। এটি CSV upload; কোনো marketplace থেকে নিজে নিজে product সংগ্রহ করে না।</div>
+      <div class="panel csv-panel">
+        <label class="csv-file-label">CSV ফাইল নির্বাচন করুন<input id="csvFileInput" type="file" accept=".csv,text/csv"></label>
+        <p class="muted csv-help">UTF-8 CSV ব্যবহার করুন। প্রথম লাইনে column header থাকতে হবে। Import-এর আগে নিচে preview দেখা যাবে।</p>
+        <div id="csvSummary" class="csv-summary" aria-live="polite">এখনো কোনো CSV ফাইল নির্বাচন করা হয়নি।</div>
+        <div class="table-wrap csv-preview-wrap"><table><thead id="csvPreviewHead"><tr><th>Preview</th></tr></thead><tbody id="csvPreviewRows"><tr><td>CSV ফাইল নির্বাচন করলে এখানে preview দেখা যাবে।</td></tr></tbody></table></div>
+        <div class="csv-actions"><button class="secondary" id="clearCsvBtn" type="button" disabled>ফাইল বাতিল</button><button class="primary" id="importCsvBtn" type="button" disabled>পণ্য Import করুন</button></div>
+        <p class="message" id="csvMessage" role="status"></p>
+      </div>
     </section>
     <section class="view" id="view-stores" hidden>
       <div class="section-toolbar"><div><h2>স্টোর ও e-commerce সংযোগ</h2><p>যে সব marketplace বা দোকানের পণ্য Kini007-এ দেখাতে চান সেগুলো এখানে যোগ করুন।</p></div><button class="primary" id="newStoreBtn">＋ নতুন স্টোর</button></div>

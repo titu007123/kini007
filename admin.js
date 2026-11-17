@@ -69,7 +69,7 @@
     });
   }
   function fillStoreOptions(){const dl=$('storeOptions');dl.replaceChildren();stores.filter(s=>s.is_active).forEach(s=>{const o=document.createElement('option');o.value=s.name;dl.append(o);});}
-  function showView(view){document.querySelectorAll('.view').forEach(v=>v.hidden=v.id!==`view-${view}`);document.querySelectorAll('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.view===view));$('pageTitle').textContent=({overview:'ড্যাশবোর্ড',products:'পণ্য পরিচালনা',stores:'স্টোর সংযোগ'})[view]||'ড্যাশবোর্ড';}
+  function showView(view){document.querySelectorAll('.view').forEach(v=>v.hidden=v.id!==`view-${view}`);document.querySelectorAll('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.view===view));$('pageTitle').textContent=({overview:'ড্যাশবোর্ড',products:'পণ্য পরিচালনা',stores:'স্টোর সংযোগ',import:'CSV Import'})[view]||'ড্যাশবোর্ড';}
   function openModal(id){$(id).hidden=false;} function closeModal(id){$(id).hidden=true;}
   function resetProductForm(){ $('productForm').reset();$('productId').value='';$('pActive').checked=true;$('productModalTitle').textContent='নতুন পণ্য যোগ করুন';showMessage('productMessage','',true); }
   function openProduct(p=null){resetProductForm();if(p){$('productId').value=p.id;$('pName').value=p.name||'';$('pDescription').value=p.description||'';$('pCategory').value=p.category||'other';$('pBrand').value=p.brand||'';$('pPrice').value=p.price??'';$('pCurrency').value=p.currency||'BDT';$('pRegion').value=p.region||'Bangladesh';$('pPlatform').value=p.platform||'';$('pImage').value=p.image_url||'';$('pUrl').value=p.product_url||'';$('pActive').checked=!!p.is_active;$('productModalTitle').textContent='পণ্য পরিবর্তন করুন';}openModal('productModal'); }
@@ -86,6 +86,35 @@
     const payload={name:$('sName').value.trim(),website_url:website,integration_type:$('sType').value,affiliate_url:affiliate||null,notes:$('sNotes').value.trim()||null,is_active:$('sActive').checked};$('saveStoreBtn').disabled=true;showMessage('storeMessage','সংরক্ষণ হচ্ছে…',true);
     const {error}=await db.from('stores').insert(payload);$('saveStoreBtn').disabled=false;if(error){showMessage('storeMessage','স্টোর সংরক্ষণ হয়নি: '+error.message);return;}$('storeForm').reset();$('sActive').checked=true;closeModal('storeModal');await loadStores();globalMessage('নতুন স্টোর যোগ হয়েছে।');
   }
+  function parseCsv(text){
+    const rows=[];let row=[],field='',quoted=false;
+    for(let i=0;i<text.length;i++){
+      const c=text[i],next=text[i+1];
+      if(quoted){if(c==='"'&&next==='"'){field+='"';i++;}else if(c==='"'){quoted=false;}else{field+=c;}}
+      else if(c==='"'){quoted=true;}
+      else if(c===','){row.push(field);field='';}
+      else if(c==='\n'){row.push(field);rows.push(row);row=[];field='';}
+      else if(c!=='\r'){field+=c;}
+    }
+    if(field.length||row.length){row.push(field);rows.push(row);}
+    return rows.filter(r=>r.some(v=>String(v).trim()!==''));
+  }
+  const headerAliases={name:['name','product_name','title','পণ্যের নাম','নাম'],description:['description','details','বিবরণ'],category:['category','ক্যাটাগরি'],brand:['brand','ব্র্যান্ড'],price:['price','দাম'],currency:['currency','মুদ্রা'],platform:['platform','store','store_name','স্টোর'],region:['region','অঞ্চল'],image_url:['image_url','image','imageurl','ছবির লিংক'],product_url:['product_url','affiliate_url','shopping_url','url','লিংক'],is_active:['is_active','active','সক্রিয়']};
+  function normalizeCsvRow(headers,values){const raw={};headers.forEach((h,i)=>raw[String(h||'').replace(/^\uFEFF/,'').trim().toLowerCase()]=String(values[i]??'').trim());const out={};for(const [key,aliases] of Object.entries(headerAliases)){const found=aliases.find(a=>raw[a]!==undefined);if(found!==undefined)out[key]=raw[found];}return out;}
+  function csvBoolean(v){return !['false','0','no','না','inactive','off'].includes(String(v||'').trim().toLowerCase());}
+  function prepareCsvRows(parsed){
+    if(parsed.length<2)throw new Error('CSV-তে header এবং অন্তত একটি product row থাকতে হবে।');
+    const headers=parsed[0].map(h=>String(h||'').replace(/^\uFEFF/,'').trim().toLowerCase());
+    if(!headers.some(h=>headerAliases.name.includes(h)))throw new Error('CSV-তে name অথবা product_name column পাওয়া যায়নি।');
+    const valid=[],invalid=[];
+    parsed.slice(1).forEach((values,index)=>{const r=normalizeCsvRow(headers,values),line=index+2;if(!r.name){invalid.push(`লাইন ${line}: name খালি`);return;}let price=null;if(r.price!==undefined&&r.price!==''){price=Number(r.price.replace(/[,৳$ ]/g,''));if(!Number.isFinite(price)||price<0){invalid.push(`লাইন ${line}: price সঠিক নয়`);return;}}const image=r.image_url?safeWebUrl(r.image_url):'';const url=r.product_url?safeWebUrl(r.product_url):'';if(r.image_url&&!image){invalid.push(`লাইন ${line}: image_url সঠিক নয়`);return;}if(r.product_url&&!url){invalid.push(`লাইন ${line}: product_url সঠিক নয়`);return;}valid.push({name:r.name.slice(0,180),description:r.description||null,category:(r.category||'other').toLowerCase(),brand:r.brand||null,price,currency:(r.currency||'BDT').toUpperCase(),platform:r.platform||null,region:r.region||'Bangladesh',image_url:image||null,product_url:url||null,is_active:csvBoolean(r.is_active)});});
+    return {valid,invalid};
+  }
+  function renderCsvPreview(){const head=$('csvPreviewHead'),body=$('csvPreviewRows');head.replaceChildren();body.replaceChildren();if(!csvRows.length){head.innerHTML='<tr><th>Preview</th></tr>';body.innerHTML='<tr><td>CSV ফাইল নির্বাচন করলে এখানে preview দেখা যাবে।</td></tr>';return;}const columns=['name','category','brand','price','currency','platform','region','image_url','product_url','is_active'];const trh=document.createElement('tr');columns.forEach(c=>{const th=document.createElement('th');th.textContent=c;trh.append(th);});head.append(trh);csvRows.slice(0,8).forEach(r=>{const tr=document.createElement('tr');columns.forEach(c=>{const td=document.createElement('td');td.textContent=r[c]??'';tr.append(td);});body.append(tr);});}
+  async function handleCsvFile(file){csvRows=[];csvValidRows=[];$('importCsvBtn').disabled=true;$('clearCsvBtn').disabled=true;showMessage('csvMessage','',true);if(!file)return;if(!file.name.toLowerCase().endsWith('.csv')){showMessage('csvMessage','শুধু .csv ফাইল নির্বাচন করুন।');return;}try{const text=(await file.text()).replace(/^\uFEFF/,'');const parsed=parseCsv(text);const result=prepareCsvRows(parsed);csvValidRows=result.valid;csvRows=result.valid.slice(0,8);renderCsvPreview();$('csvSummary').textContent=`মোট data row: ${Math.max(0,parsed.length-1)} | Import করা যাবে: ${result.valid.length} | বাদ যাবে: ${result.invalid.length}${result.invalid.length?` | প্রথম সমস্যা: ${result.invalid.slice(0,3).join(' ; ')}`:''}`;$('importCsvBtn').disabled=!csvValidRows.length;$('clearCsvBtn').disabled=false;showMessage('csvMessage',result.valid.length?'Preview ঠিক আছে। Import করার আগে তথ্যগুলো দেখে নিন।':'কোনো বৈধ product row পাওয়া যায়নি।',!!result.valid.length);}catch(err){renderCsvPreview();$('csvSummary').textContent='CSV পড়া যায়নি।';showMessage('csvMessage',err.message);}}
+  async function importCsv(){if(!csvValidRows.length)return;if(!confirm(`${csvValidRows.length}টি পণ্য Database-এ যোগ করবেন? একই নামের পণ্য থাকলেও নতুন row তৈরি হতে পারে।`))return;$('importCsvBtn').disabled=true;$('clearCsvBtn').disabled=true;showMessage('csvMessage','Import শুরু হচ্ছে…',true);let inserted=0;const errors=[];for(let i=0;i<csvValidRows.length;i+=100){const chunk=csvValidRows.slice(i,i+100);const {error}=await db.from('products').insert(chunk);if(error){errors.push(`Batch ${Math.floor(i/100)+1}: ${error.message}`);break;}inserted+=chunk.length;showMessage('csvMessage',`${inserted}/${csvValidRows.length}টি পণ্য Import হয়েছে…`,true);}await loadProducts();if(errors.length){showMessage('csvMessage',`${inserted}টি পণ্য Import হয়েছে, কিন্তু বাকি অংশে সমস্যা: ${errors[0]}`);}else{showMessage('csvMessage',`সফল! ${inserted}টি পণ্য Import হয়েছে।`,true);$('csvSummary').textContent=`সম্পন্ন: ${inserted}টি পণ্য Database-এ যোগ হয়েছে।`;csvValidRows=[];$('csvFileInput').value='';$('importCsvBtn').disabled=true;$('clearCsvBtn').disabled=true;}}
+  function downloadCsvTemplate(){const content='name,description,category,brand,price,currency,platform,region,image_url,product_url,is_active\n"Sample Product","Short description",tech,Brand,1200,BDT,"Daraz Bangladesh",Bangladesh,https://example.com/image.jpg,https://example.com/product,true\n';const blob=new Blob(['\uFEFF'+content],{type:'text/csv;charset=utf-8;'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='kini007-product-import-template.csv';a.click();URL.revokeObjectURL(url);}
+  function clearCsv(){csvRows=[];csvValidRows=[];$('csvFileInput').value='';$('csvSummary').textContent='এখনো কোনো CSV ফাইল নির্বাচন করা হয়নি।';renderCsvPreview();$('importCsvBtn').disabled=true;$('clearCsvBtn').disabled=true;showMessage('csvMessage','',true);}
   async function logout(){await db.auth.signOut();location.reload();}
   async function boot(){
     if(!cfg.url||!cfg.publishableKey||!clientLib?.createClient){showMessage('loginMessage','Supabase configuration বা SDK পাওয়া যায়নি।');return;}
@@ -99,6 +128,7 @@
   document.querySelectorAll('[data-goto]').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.goto)));
   $('newProductBtn').addEventListener('click',()=>openProduct());$('newStoreBtn').addEventListener('click',()=>{$('storeForm').reset();$('sActive').checked=true;showMessage('storeMessage','',true);openModal('storeModal');});
   $('productForm').addEventListener('submit',saveProduct);$('storeForm').addEventListener('submit',saveStore);$('productSearch').addEventListener('input',renderProducts);
+  $('csvFileInput').addEventListener('change',e=>handleCsvFile(e.target.files?.[0]));$('importCsvBtn').addEventListener('click',importCsv);$('clearCsvBtn').addEventListener('click',clearCsv);$('downloadCsvTemplateBtn').addEventListener('click',downloadCsvTemplate);
   document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>closeModal(b.dataset.close)));
   document.querySelectorAll('.modal-backdrop').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)closeModal(m.id);}));
   boot().catch(err=>showMessage('loginMessage','প্রাথমিক সেটআপে সমস্যা: '+err.message));
