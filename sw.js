@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kinioo7-v5-card-layout';
+const CACHE_NAME = 'kinioo7-v5-ebay-search';
 const CORE = ['./','./index.html','./style.css','./app.js','./supabase-config.js','./admin.html','./admin.css','./admin.js','./manifest.json','./icon.svg','./icon-192.png','./icon-512.png'];
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE_NAME).then(cache=>cache.addAll(CORE)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE_NAME).map(key=>caches.delete(key)))).then(()=>self.clients.claim())));

@@ -44,7 +44,7 @@
       const tr=document.createElement('tr');
       const name=document.createElement('td');name.innerHTML=`<strong>${esc(p.name)}</strong><span class="subtext">${esc(p.brand||'')}</span>`;
       const cat=document.createElement('td');cat.textContent=p.category||'—';
-      const price=document.createElement('td');price.textContent=p.price==null?'—':`${Number(p.price).toLocaleString("en-US")} ${p.currency||'BDT'}`;
+      const price=document.createElement('td');price.textContent=p.price==null?'—':`${Number(p.price).toLocaleString()} ${p.currency||'BDT'}`;
       const platform=document.createElement('td');platform.textContent=p.platform||'—';
       const state=document.createElement('td');state.innerHTML=p.is_active?'<span class="status-pill">Active</span>':'<span class="status-pill off">Inactive</span>';
       const actions=document.createElement('td');actions.className='row-actions';
