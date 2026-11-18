@@ -4,14 +4,12 @@
   const config = window.KINIOO7_SUPABASE || {};
   const SUPABASE_URL = String(config.url || "").replace(/\/$/, "");
   const SUPABASE_KEY = String(config.publishableKey || "");
-
   const grid = document.querySelector("#grid");
   const search = document.querySelector("#search");
   const status = document.querySelector("#dataStatus");
   const resultCount = document.querySelector("#resultCount");
   const searchBtn = document.querySelector("#searchBtn");
   const langBtn = document.querySelector("#langBtn");
-
   let products = [];
   let category = "all";
   let language = "bn";
@@ -20,10 +18,10 @@
     bn: {
       loading: "পণ্য লোড হচ্ছে…",
       ready: "ডেটাবেস থেকে পণ্য দেখানো হচ্ছে।",
-      missingConfig: "Supabase কনফিগারেশন পাওয়া যায়নি।",
-      error: "পণ্য লোড করা যায়নি।",
-      empty: "এখনো কোনো পণ্য যোগ করা হয়নি।",
-      noResults: "কোনো পণ্য পাওয়া যায়নি।",
+      missingConfig: "Supabase কনফিগারেশন পাওয়া যায়নি। supabase-config.js পরীক্ষা করুন।",
+      error: "পণ্য লোড করা যায়নি। Supabase URL, API key, Data API এবং RLS policy পরীক্ষা করুন।",
+      empty: "এখনো কোনো পণ্য যোগ করা হয়নি। Admin Dashboard তৈরি হলে সেখান থেকে পণ্য যোগ করতে পারবেন।",
+      noResults: "কোনো পণ্য পাওয়া যায়নি। অন্য শব্দ দিয়ে খুঁজুন।",
       details: "পণ্য দেখুন ↗",
       noLink: "লিংক যোগ করা হয়নি",
       results: "টি পণ্য",
@@ -32,10 +30,10 @@
     en: {
       loading: "Loading products…",
       ready: "Showing products from the database.",
-      missingConfig: "Supabase configuration was not found.",
-      error: "Could not load products.",
-      empty: "No products have been added yet.",
-      noResults: "No products found.",
+      missingConfig: "Supabase configuration was not found. Check supabase-config.js.",
+      error: "Could not load products. Check the Supabase URL, API key, Data API and RLS policy.",
+      empty: "No products have been added yet. You will be able to add products from the Admin Dashboard when it is built.",
+      noResults: "No products found. Try another search term.",
       details: "View product ↗",
       noLink: "No product link",
       results: "products",
@@ -43,778 +41,197 @@
     }
   };
 
-  function text(key) {
-    return copy[language][key];
-  }
-
+  function text(key) { return copy[language][key]; }
   function normalize(value) {
-    return String(value ?? "")
-      .toLocaleLowerCase()
-      .replace(/[০-৯]/g, d => "০১২৩৪৫৬৭৮৯".indexOf(d))
-      .trim();
+    return String(value ?? "").toLocaleLowerCase().replace(/[০-৯]/g, d => "০১২৩৪৫৬৭৮৯".indexOf(d)).trim();
   }
-
   function safeUrl(value) {
     try {
       const url = new URL(String(value || ""));
-      return ["https:", "http:"].includes(url.protocol)
-        ? url.href
-        : "";
-    } catch (_) {
-      return "";
-    }
+      return url.protocol === "https:" || url.protocol === "http:" ? url.href : "";
+    } catch (_) { return ""; }
   }
-
-  function categoryMatches(productCategory, selected) {
+  function categoryMatches(product, selected) {
     if (selected === "all") return true;
 
-    const value = normalize(productCategory);
-
+    const categoryValue = normalize(product.category);
+    const regionValue = normalize(product.region);
     const groups = {
       bd: ["bd", "bangladesh", "বাংলাদেশ"],
       global: ["global", "international", "আন্তর্জাতিক"],
       fashion: ["fashion", "ফ্যাশন", "clothing", "beauty"],
-      tech: ["tech", "technology", "electronics", "প্রযুক্তি"],
+      tech: ["tech", "technology", "electronics", "প্রযুক্তি", "ইলেকট্রনিক্স"],
       stories: ["stories", "story", "গল্প"],
       islamic: ["islamic", "ইসলামিক", "ইসলাম"]
     };
+    const terms = groups[selected] || [selected];
 
-    return (groups[selected] || [selected])
-      .some(term => value.includes(normalize(term)));
+    // Bangladesh/Global are regions in the database schema, not product categories.
+    const source = (selected === "bd" || selected === "global")
+      ? `${regionValue} ${categoryValue}`
+      : categoryValue;
+    return terms.some(term => source.includes(normalize(term)));
   }
-
   function formatPrice(price, currency) {
-    if (price === null || price === undefined || price === "") {
-      return "";
-    }
-
+    if (price === null || price === undefined || price === "") return "";
     const amount = Number(price);
-
-    if (!Number.isFinite(amount)) {
-      return `${price} ${currency || ""}`.trim();
-    }
-
+    if (!Number.isFinite(amount)) return `${price} ${currency || ""}`.trim();
     const code = String(currency || "BDT").toUpperCase();
-
     try {
-      return new Intl.NumberFormat(
-        language === "bn" ? "bn-BD" : "en-US",
-        {
-          style: "currency",
-          currency: code,
-          maximumFractionDigits: 2
-        }
-      ).format(amount);
+      return new Intl.NumberFormat(language === "bn" ? "bn-BD" : "en-US", {
+        style: "currency", currency: code, maximumFractionDigits: 2
+      }).format(amount);
     } catch (_) {
       return `${amount.toLocaleString()} ${code}`;
     }
   }
-
   function make(tag, className, value) {
     const node = document.createElement(tag);
-
     if (className) node.className = className;
-
-    if (value !== undefined && value !== null) {
-      node.textContent = String(value);
-    }
-
+    if (value !== undefined && value !== null) node.textContent = String(value);
     return node;
   }
-
-  // FIXED IMAGE AREA FOR EVERY PRODUCT CARD
-  function createProductImage(product) {
-    const imageWrap = make("div", "art image-art");
-
-    const imageUrl = safeUrl(product.image_url);
-
-    if (imageUrl) {
-      const image = make("img", "product-image");
-
-      image.src = imageUrl;
-      image.alt = product.name || "Product image";
-      image.loading = "lazy";
-      image.referrerPolicy = "no-referrer";
-
-      image.addEventListener("error", () => {
-        imageWrap.replaceChildren(
-          make("span", "image-fallback", "🛍️")
-        );
-      }, { once: true });
-
-      imageWrap.appendChild(image);
-
-    } else {
-      imageWrap.appendChild(
-        make("span", "image-fallback", "🛍️")
-      );
-    }
-
-    return imageWrap;
-  }
-
   function render() {
     const query = normalize(search.value);
-
     const visible = products.filter(product => {
       const searchable = normalize([
-        product.name,
-        product.description,
-        product.category,
-        product.brand,
-        product.platform,
-        product.region
+        product.name, product.description, product.category,
+        product.brand, product.platform, product.region
       ].join(" "));
-
-      return (
-        categoryMatches(product.category, category) &&
-        (!query || searchable.includes(query))
-      );
+      return categoryMatches(product, category) && (!query || searchable.includes(query));
     });
 
     grid.replaceChildren();
-
-    if (resultCount) {
-      resultCount.textContent =
-        `${visible.length} ${text("results")}`;
-    }
+    if (resultCount) resultCount.textContent = `${visible.length} ${text("results")}`;
 
     if (!visible.length) {
-      grid.appendChild(
-        make(
-          "div",
-          "empty",
-          products.length ? text("noResults") : text("empty")
-        )
-      );
+      const empty = make("div", "empty", products.length ? text("noResults") : text("empty"));
+      grid.appendChild(empty);
       return;
     }
 
     const fragment = document.createDocumentFragment();
-
     visible.forEach(product => {
       const card = make("article", "card");
-
-      // Every card gets the SAME image container.
-      card.appendChild(createProductImage(product));
+      const imageUrl = safeUrl(product.image_url);
+      if (imageUrl) {
+        const imageWrap = make("div", "art image-art");
+        const image = make("img", "product-image");
+        image.src = imageUrl;
+        image.alt = product.name || "Product image";
+        image.loading = "lazy";
+        image.referrerPolicy = "no-referrer";
+        image.addEventListener("error", () => {
+          imageWrap.replaceChildren(make("span", "image-fallback", "🛍️"));
+        }, { once: true });
+        imageWrap.appendChild(image);
+        card.appendChild(imageWrap);
+      } else {
+        card.appendChild(make("div", "art", "🛍️"));
+      }
 
       const body = make("div", "card-body");
-
-      const label = [
-        product.platform,
-        product.category
-      ].filter(Boolean).join(" • ") || product.region || "Kini007";
-
+      const label = [product.platform, product.category].filter(Boolean).join(" • ") || product.region || "Kini007";
       body.appendChild(make("span", "badge", label));
-
-      body.appendChild(
-        make("h3", "", product.name || "Unnamed product")
-      );
-
-      if (product.description) {
-        body.appendChild(
-          make("p", "", product.description)
-        );
-      }
-
-      const price = formatPrice(
-        product.price,
-        product.currency
-      );
-
-      if (price) {
-        body.appendChild(
-          make("div", "product-price", price)
-        );
-      }
-
+      body.appendChild(make("h3", "", product.name || "Unnamed product"));
+      if (product.description) body.appendChild(make("p", "", product.description));
+      const price = formatPrice(product.price, product.currency);
+      if (price) body.appendChild(make("div", "product-price", price));
       const link = safeUrl(product.product_url);
-
-      const action = make(
-        link ? "a" : "span",
-        link ? "product-link" : "product-link disabled",
-        link ? text("details") : text("noLink")
-      );
-
+      const action = make(link ? "a" : "span", link ? "product-link" : "product-link disabled", link ? text("details") : text("noLink"));
       if (link) {
         action.href = link;
         action.target = "_blank";
         action.rel = "noopener noreferrer sponsored";
       }
-
       body.appendChild(action);
       card.appendChild(body);
-
       fragment.appendChild(card);
     });
-
     grid.appendChild(fragment);
   }
 
   async function loadProducts() {
     if (!SUPABASE_URL || !SUPABASE_KEY) {
       status.textContent = text("missingConfig");
-
-      grid.replaceChildren(
-        make("div", "empty", text("missingConfig"))
-      );
-
+      grid.replaceChildren(make("div", "empty", text("missingConfig")));
       return;
     }
-
     status.textContent = text("loading");
+    grid.replaceChildren(make("div", "empty", text("loading")));
 
-    grid.replaceChildren(
-      make("div", "empty", text("loading"))
-    );
-
-    const endpoint =
-      `${SUPABASE_URL}/rest/v1/products?select=id,name,description,category,brand,price,currency,image_url,product_url,platform,region,is_active,created_at&is_active=eq.true&order=created_at.desc&limit=500`;
-
+    const endpoint = `${SUPABASE_URL}/rest/v1/products?select=id,name,description,category,brand,price,currency,image_url,product_url,platform,region,is_active,created_at&is_active=eq.true&order=created_at.desc&limit=500`;
     try {
       const response = await fetch(endpoint, {
         method: "GET",
         headers: {
+          // Supabase sb_publishable_* keys are API keys, not JWTs.
+          // Send them in apikey only; do not use them as Bearer tokens.
           apikey: SUPABASE_KEY,
-          Authorization: `Bearer ${SUPABASE_KEY}`,
           Accept: "application/json"
         },
         cache: "no-store"
       });
-
       if (!response.ok) {
         const detail = await response.text().catch(() => "");
-        throw new Error(
-          `Supabase returned ${response.status}: ${detail.slice(0, 240)}`
-        );
+        throw new Error(`Supabase returned ${response.status}: ${detail.slice(0, 240)}`);
       }
-
       const data = await response.json();
-
       products = Array.isArray(data) ? data : [];
-
       status.textContent = text("ready");
-
       render();
-
     } catch (error) {
       console.error("Kini007 product loading error:", error);
-
       status.textContent = text("error");
-
-      grid.replaceChildren(
-        make("div", "empty", text("error"))
-      );
-
-      const retry = make(
-        "button",
-        "retry-button",
-        text("retry")
-      );
-
+      grid.replaceChildren(make("div", "empty", text("error")));
+      const retry = make("button", "retry-button", text("retry"));
       retry.type = "button";
       retry.addEventListener("click", loadProducts);
-
       grid.appendChild(retry);
     }
   }
 
-  // Category tabs
   document.querySelectorAll(".tab").forEach(button => {
     button.addEventListener("click", () => {
-      document.querySelector(".tab.active")
-        ?.classList.remove("active");
-
+      document.querySelector(".tab.active")?.classList.remove("active");
       button.classList.add("active");
-
       category = button.dataset.cat || "all";
-
       render();
     });
   });
-
-  // Search
   search.addEventListener("input", render);
   searchBtn.addEventListener("click", render);
+  search.addEventListener("keydown", event => { if (event.key === "Enter") render(); });
 
-  search.addEventListener("keydown", event => {
-    if (event.key === "Enter") render();
-  });
-
-  // Language switch
   langBtn.addEventListener("click", () => {
     language = language === "bn" ? "en" : "bn";
-
-    langBtn.textContent =
-      language === "bn" ? "EN" : "বাংলা";
-
+    langBtn.textContent = language === "bn" ? "EN" : "বাংলা";
     document.documentElement.lang = language;
-
-    document.querySelectorAll("[data-bn][data-en]")
-      .forEach(element => {
-        element.textContent = element.dataset[language];
-      });
-
-    search.placeholder =
-      language === "bn"
-        ? "পণ্য বা বিষয় খুঁজুন..."
-        : "Search products or topics...";
-
-    if (products.length) {
-      status.textContent = text("ready");
-    }
-
+    document.querySelectorAll("[data-bn][data-en]").forEach(element => {
+      element.textContent = element.dataset[language];
+    });
+    search.placeholder = language === "bn" ? "পণ্য বা বিষয় খুঁজুন..." : "Search products or topics...";
+    status.textContent = products.length ? text("ready") : status.textContent;
     render();
   });
 
-  // Footer year
-  document.querySelector("#year").textContent =
-    new Date().getFullYear();
-
-  // PWA installation
+  document.querySelector("#year").textContent = new Date().getFullYear();
   let installPrompt;
-
   window.addEventListener("beforeinstallprompt", event => {
     event.preventDefault();
-
     installPrompt = event;
-
     document.querySelector("#installBtn").hidden = false;
   });
-
-  document.querySelector("#installBtn")
-    .addEventListener("click", async () => {
-      if (!installPrompt) return;
-
-      installPrompt.prompt();
-
-      await installPrompt.userChoice;
-
-      installPrompt = null;
-
-      document.querySelector("#installBtn").hidden = true;
-    });
-
-  // Service worker
+  document.querySelector("#installBtn").addEventListener("click", async () => {
+    if (!installPrompt) return;
+    installPrompt.prompt();
+    await installPrompt.userChoice;
+    installPrompt = null;
+    document.querySelector("#installBtn").hidden = true;
+  });
   if ("serviceWorker" in navigator) {
-    window.addEventListener("load", () => {
-      navigator.serviceWorker
-        .register("./sw.js")
-        .catch(console.error);
-    });
+    window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(console.error));
   }
 
-  // Load products
-  (() => {
-  "use strict";
-
-  const config = window.KINIOO7_SUPABASE || {};
-  const SUPABASE_URL = String(config.url || "").replace(/\/$/, "");
-  const SUPABASE_KEY = String(config.publishableKey || "");
-
-  const grid = document.querySelector("#grid");
-  const search = document.querySelector("#search");
-  const status = document.querySelector("#dataStatus");
-  const resultCount = document.querySelector("#resultCount");
-  const searchBtn = document.querySelector("#searchBtn");
-  const langBtn = document.querySelector("#langBtn");
-
-  let products = [];
-  let category = "all";
-  let language = "bn";
-
-  const copy = {
-    bn: {
-      loading: "পণ্য লোড হচ্ছে…",
-      ready: "ডেটাবেস থেকে পণ্য দেখানো হচ্ছে।",
-      missingConfig: "Supabase কনফিগারেশন পাওয়া যায়নি।",
-      error: "পণ্য লোড করা যায়নি।",
-      empty: "এখনো কোনো পণ্য যোগ করা হয়নি।",
-      noResults: "কোনো পণ্য পাওয়া যায়নি।",
-      details: "পণ্য দেখুন ↗",
-      noLink: "লিংক যোগ করা হয়নি",
-      results: "টি পণ্য",
-      retry: "আবার চেষ্টা করুন"
-    },
-    en: {
-      loading: "Loading products…",
-      ready: "Showing products from the database.",
-      missingConfig: "Supabase configuration was not found.",
-      error: "Could not load products.",
-      empty: "No products have been added yet.",
-      noResults: "No products found.",
-      details: "View product ↗",
-      noLink: "No product link",
-      results: "products",
-      retry: "Try again"
-    }
-  };
-
-  function text(key) {
-    return copy[language][key];
-  }
-
-  function normalize(value) {
-    return String(value ?? "")
-      .toLocaleLowerCase()
-      .replace(/[০-৯]/g, d => "০১২৩৪৫৬৭৮৯".indexOf(d))
-      .trim();
-  }
-
-  function safeUrl(value) {
-    try {
-      const url = new URL(String(value || ""));
-      return ["https:", "http:"].includes(url.protocol)
-        ? url.href
-        : "";
-    } catch (_) {
-      return "";
-    }
-  }
-
-  function categoryMatches(productCategory, selected) {
-    if (selected === "all") return true;
-
-    const value = normalize(productCategory);
-
-    const groups = {
-      bd: ["bd", "bangladesh", "বাংলাদেশ"],
-      global: ["global", "international", "আন্তর্জাতিক"],
-      fashion: ["fashion", "ফ্যাশন", "clothing", "beauty"],
-      tech: ["tech", "technology", "electronics", "প্রযুক্তি"],
-      stories: ["stories", "story", "গল্প"],
-      islamic: ["islamic", "ইসলামিক", "ইসলাম"]
-    };
-
-    return (groups[selected] || [selected])
-      .some(term => value.includes(normalize(term)));
-  }
-
-  function formatPrice(price, currency) {
-    if (price === null || price === undefined || price === "") {
-      return "";
-    }
-
-    const amount = Number(price);
-
-    if (!Number.isFinite(amount)) {
-      return `${price} ${currency || ""}`.trim();
-    }
-
-    const code = String(currency || "BDT").toUpperCase();
-
-    try {
-      return new Intl.NumberFormat(
-        language === "bn" ? "bn-BD" : "en-US",
-        {
-          style: "currency",
-          currency: code,
-          maximumFractionDigits: 2
-        }
-      ).format(amount);
-    } catch (_) {
-      return `${amount.toLocaleString()} ${code}`;
-    }
-  }
-
-  function make(tag, className, value) {
-    const node = document.createElement(tag);
-
-    if (className) node.className = className;
-
-    if (value !== undefined && value !== null) {
-      node.textContent = String(value);
-    }
-
-    return node;
-  }
-
-  // FIXED IMAGE AREA FOR EVERY PRODUCT CARD
-  function createProductImage(product) {
-    const imageWrap = make("div", "art image-art");
-
-    const imageUrl = safeUrl(product.image_url);
-
-    if (imageUrl) {
-      const image = make("img", "product-image");
-
-      image.src = imageUrl;
-      image.alt = product.name || "Product image";
-      image.loading = "lazy";
-      image.referrerPolicy = "no-referrer";
-
-      image.addEventListener("error", () => {
-        imageWrap.replaceChildren(
-          make("span", "image-fallback", "🛍️")
-        );
-      }, { once: true });
-
-      imageWrap.appendChild(image);
-
-    } else {
-      imageWrap.appendChild(
-        make("span", "image-fallback", "🛍️")
-      );
-    }
-
-    return imageWrap;
-  }
-
-  function render() {
-    const query = normalize(search.value);
-
-    const visible = products.filter(product => {
-      const searchable = normalize([
-        product.name,
-        product.description,
-        product.category,
-        product.brand,
-        product.platform,
-        product.region
-      ].join(" "));
-
-      return (
-        categoryMatches(product.category, category) &&
-        (!query || searchable.includes(query))
-      );
-    });
-
-    grid.replaceChildren();
-
-    if (resultCount) {
-      resultCount.textContent =
-        `${visible.length} ${text("results")}`;
-    }
-
-    if (!visible.length) {
-      grid.appendChild(
-        make(
-          "div",
-          "empty",
-          products.length ? text("noResults") : text("empty")
-        )
-      );
-      return;
-    }
-
-    const fragment = document.createDocumentFragment();
-
-    visible.forEach(product => {
-      const card = make("article", "card");
-
-      // Every card gets the SAME image container.
-      card.appendChild(createProductImage(product));
-
-      const body = make("div", "card-body");
-
-      const label = [
-        product.platform,
-        product.category
-      ].filter(Boolean).join(" • ") || product.region || "Kini007";
-
-      body.appendChild(make("span", "badge", label));
-
-      body.appendChild(
-        make("h3", "", product.name || "Unnamed product")
-      );
-
-      if (product.description) {
-        body.appendChild(
-          make("p", "", product.description)
-        );
-      }
-
-      const price = formatPrice(
-        product.price,
-        product.currency
-      );
-
-      if (price) {
-        body.appendChild(
-          make("div", "product-price", price)
-        );
-      }
-
-      const link = safeUrl(product.product_url);
-
-      const action = make(
-        link ? "a" : "span",
-        link ? "product-link" : "product-link disabled",
-        link ? text("details") : text("noLink")
-      );
-
-      if (link) {
-        action.href = link;
-        action.target = "_blank";
-        action.rel = "noopener noreferrer sponsored";
-      }
-
-      body.appendChild(action);
-      card.appendChild(body);
-
-      fragment.appendChild(card);
-    });
-
-    grid.appendChild(fragment);
-  }
-
-  async function loadProducts() {
-    if (!SUPABASE_URL || !SUPABASE_KEY) {
-      status.textContent = text("missingConfig");
-
-      grid.replaceChildren(
-        make("div", "empty", text("missingConfig"))
-      );
-
-      return;
-    }
-
-    status.textContent = text("loading");
-
-    grid.replaceChildren(
-      make("div", "empty", text("loading"))
-    );
-
-    const endpoint =
-      `${SUPABASE_URL}/rest/v1/products?select=id,name,description,category,brand,price,currency,image_url,product_url,platform,region,is_active,created_at&is_active=eq.true&order=created_at.desc&limit=500`;
-
-    try {
-      const response = await fetch(endpoint, {
-        method: "GET",
-        headers: {
-          apikey: SUPABASE_KEY,
-          Authorization: `Bearer ${SUPABASE_KEY}`,
-          Accept: "application/json"
-        },
-        cache: "no-store"
-      });
-
-      if (!response.ok) {
-        const detail = await response.text().catch(() => "");
-        throw new Error(
-          `Supabase returned ${response.status}: ${detail.slice(0, 240)}`
-        );
-      }
-
-      const data = await response.json();
-
-      products = Array.isArray(data) ? data : [];
-
-      status.textContent = text("ready");
-
-      render();
-
-    } catch (error) {
-      console.error("Kini007 product loading error:", error);
-
-      status.textContent = text("error");
-
-      grid.replaceChildren(
-        make("div", "empty", text("error"))
-      );
-
-      const retry = make(
-        "button",
-        "retry-button",
-        text("retry")
-      );
-
-      retry.type = "button";
-      retry.addEventListener("click", loadProducts);
-
-      grid.appendChild(retry);
-    }
-  }
-
-  // Category tabs
-  document.querySelectorAll(".tab").forEach(button => {
-    button.addEventListener("click", () => {
-      document.querySelector(".tab.active")
-        ?.classList.remove("active");
-
-      button.classList.add("active");
-
-      category = button.dataset.cat || "all";
-
-      render();
-    });
-  });
-
-  // Search
-  search.addEventListener("input", render);
-  searchBtn.addEventListener("click", render);
-
-  search.addEventListener("keydown", event => {
-    if (event.key === "Enter") render();
-  });
-
-  // Language switch
-  langBtn.addEventListener("click", () => {
-    language = language === "bn" ? "en" : "bn";
-
-    langBtn.textContent =
-      language === "bn" ? "EN" : "বাংলা";
-
-    document.documentElement.lang = language;
-
-    document.querySelectorAll("[data-bn][data-en]")
-      .forEach(element => {
-        element.textContent = element.dataset[language];
-      });
-
-    search.placeholder =
-      language === "bn"
-        ? "পণ্য বা বিষয় খুঁজুন..."
-        : "Search products or topics...";
-
-    if (products.length) {
-      status.textContent = text("ready");
-    }
-
-    render();
-  });
-
-  // Footer year
-  document.querySelector("#year").textContent =
-    new Date().getFullYear();
-
-  // PWA installation
-  let installPrompt;
-
-  window.addEventListener("beforeinstallprompt", event => {
-    event.preventDefault();
-
-    installPrompt = event;
-
-    document.querySelector("#installBtn").hidden = false;
-  });
-
-  document.querySelector("#installBtn")
-    .addEventListener("click", async () => {
-      if (!installPrompt) return;
-
-      installPrompt.prompt();
-
-      await installPrompt.userChoice;
-
-      installPrompt = null;
-
-      document.querySelector("#installBtn").hidden = true;
-    });
-
-  // Service worker
-  if ("serviceWorker" in navigator) {
-    window.addEventListener("load", () => {
-      navigator.serviceWorker
-        .register("./sw.js")
-        .catch(console.error);
-    });
-  }
-
-  // Load products
   loadProducts();
-
-})();
-  loadProducts();
-
 })();

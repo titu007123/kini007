@@ -37,3 +37,16 @@ Data API থেকে `public.products` টেবিলের নিচের �
 
 ## PWA
 HTTPS-এ প্রকাশিত সাইট Android Chrome থেকে Install করা যাবে, যদি browser install criteria পূরণ করে।
+
+
+## Admin Dashboard সেটআপ
+
+1. Supabase → SQL Editor-এ `supabase-admin-setup.sql` ফাইলের SQL চালান।
+2. Supabase → Authentication → Users → Add user থেকে আপনার নির্দিষ্ট Admin ইমেইল ও পাসওয়ার্ড দিয়ে একটি user তৈরি করুন। Public sign-up চালু করবেন না।
+3. তৈরি হওয়া user-এর UUID কপি করুন। SQL ফাইলের শেষে থাকা INSERT statement-এ `YOUR_AUTH_USER_UUID` বদলে UUID বসিয়ে SQL Editor-এ চালান।
+4. GitHub Pages-এ `admin.html`, `admin.css`, `admin.js`, `supabase-admin-setup.sql` এবং আপডেট করা `index.html` আপলোড করুন।
+5. Admin URL: `/admin.html`। কেবল `admin_users` টেবিলে সক্রিয়ভাবে allowlisted account-ই প্রবেশ করতে পারবে।
+
+### Marketplace সংযোগ সম্পর্কে
+
+Admin থেকে Daraz/Amazon/AliExpress বা অন্য স্টোরের নাম, ওয়েবসাইট, affiliate URL ও integration type সংরক্ষণ করা যায় এবং সেখানকার পণ্যের লিংক ম্যানুয়ালি যোগ করা যায়। স্বয়ংক্রিয় product sync করতে সংশ্লিষ্ট marketplace-এর অনুমোদিত API, affiliate feed বা CSV access এবং প্রয়োজনীয় approval লাগবে। API secret কখনো `admin.js` বা browser code-এ দেবেন না; বাস্তব API connector server-side Edge Function/secure backend-এ তৈরি করতে হবে।
