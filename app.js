@@ -78,9 +78,11 @@
     if (!Number.isFinite(amount)) return `${price} ${currency || ""}`.trim();
     const code = String(currency || "BDT").toUpperCase();
     try {
-      return new Intl.NumberFormat(language === "bn" ? "bn-BD" : "en-US", {
-        style: "currency", currency: code, maximumFractionDigits: 2
-      }).format(amount);
+     return new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: code,
+  maximumFractionDigits: 2
+}).format(amount);
     } catch (_) {
       return `${amount.toLocaleString()} ${code}`;
     }
