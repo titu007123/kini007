@@ -9,9 +9,6 @@
   const status = document.querySelector("#dataStatus");
   const resultCount = document.querySelector("#resultCount");
   const searchBtn = document.querySelector("#searchBtn");
-  const marketSearchBtn = document.querySelector("#marketSearchBtn");
-  const marketStatus = document.querySelector("#marketStatus");
-  const marketGrid = document.querySelector("#marketGrid");
   const langBtn = document.querySelector("#langBtn");
   let products = [];
   let category = "all";
@@ -204,43 +201,6 @@
   });
   search.addEventListener("input", render);
   searchBtn.addEventListener("click", render);
-  marketSearchBtn.addEventListener("click", searchEbay);
-
-  function marketMessage(bn, en) { marketStatus.textContent = language === "bn" ? bn : en; }
-  async function searchEbay() {
-    const query = search.value.trim();
-    if (query.length < 2) { marketMessage("কমপক্ষে ২ অক্ষরের পণ্যের নাম লিখুন।", "Enter a product name with at least 2 characters."); return; }
-    const functionUrl = `${SUPABASE_URL}/functions/v1/ebay-search`;
-    if (!SUPABASE_URL || !SUPABASE_KEY) { marketMessage("Supabase configuration পাওয়া যায়নি।", "Supabase configuration is missing."); return; }
-    marketSearchBtn.disabled = true;
-    marketGrid.replaceChildren();
-    marketMessage("eBay থেকে পণ্য খোঁজা হচ্ছে…", "Searching eBay…");
-    try {
-      const response = await fetch(functionUrl, { method: "POST", headers: { "Content-Type": "application/json", apikey: SUPABASE_KEY }, body: JSON.stringify({ query, limit: 12 }) });
-      const payload = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(payload.error || `Request failed (${response.status})`);
-      const items = Array.isArray(payload.items) ? payload.items : [];
-      if (!items.length) { marketMessage("eBay-তে কোনো ফলাফল পাওয়া যায়নি। অন্য শব্দ দিয়ে চেষ্টা করুন।", "No eBay results found. Try another search."); return; }
-      const fragment = document.createDocumentFragment();
-      items.forEach(item => {
-        const card = make("article", "market-card");
-        const imageUrl = safeUrl(item.image);
-        if (imageUrl) { const img = make("img"); img.src = imageUrl; img.alt = item.title || "eBay product"; img.loading = "lazy"; card.appendChild(img); }
-        card.appendChild(make("h4", "", item.title || "eBay listing"));
-        const price = item.price && item.currency ? new Intl.NumberFormat(language === "bn" ? "bn-BD" : "en-US", { style: "currency", currency: item.currency }).format(Number(item.price)) : "";
-        card.appendChild(make("div", "market-price", price));
-        const url = safeUrl(item.url);
-        if (url) { const a = make("a", "", language === "bn" ? "eBay-তে দেখুন ↗" : "View on eBay ↗"); a.href = url; a.target = "_blank"; a.rel = "noopener noreferrer sponsored"; card.appendChild(a); }
-        card.appendChild(make("p", "market-note", language === "bn" ? "দাম ও প্রাপ্যতা eBay-তে পরিবর্তিত হতে পারে।" : "Price and availability may change on eBay."));
-        fragment.appendChild(card);
-      });
-      marketGrid.appendChild(fragment);
-      marketMessage(`${items.length}টি eBay ফলাফল দেখানো হচ্ছে।`, `Showing ${items.length} eBay results.`);
-    } catch (error) {
-      console.error("eBay search error:", error);
-      marketMessage(`eBay Search চালু হয়নি: ${error.message}`, `eBay search is not connected: ${error.message}`);
-    } finally { marketSearchBtn.disabled = false; }
-  }
   search.addEventListener("keydown", event => { if (event.key === "Enter") render(); });
 
   langBtn.addEventListener("click", () => {

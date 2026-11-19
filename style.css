@@ -2,6 +2,76 @@
 /* Database-driven product cards */
 .data-status{font-size:13px;color:var(--muted);margin:0 0 5px;min-height:20px}.result-count{font-size:12px;color:var(--muted);margin:0 0 10px}.image-art{padding:10px;background:#fff!important}.product-image{width:100%;height:100%;object-fit:contain}.image-fallback{font-size:54px}.product-price{font-weight:850;color:#078577;font-size:16px;margin:0 0 13px}.product-link{display:block;text-align:center;background:var(--navy);color:#fff;text-decoration:none;border-radius:10px;padding:10px;font-size:13px;font-weight:750}.product-link.disabled{background:#e9eef3;color:#526579}.retry-button{display:block;margin:12px auto 0;border:0;border-radius:9px;background:var(--teal);color:white;padding:10px 18px;font-weight:750;cursor:pointer}.card-body p{white-space:pre-line}
 
-
-/* Marketplace API search */
-.market-search{margin:28px 0 24px;padding:22px;background:#fff;border:1px solid #e3eaf1;border-radius:20px}.market-head{display:flex;align-items:center;justify-content:space-between;gap:16px}.market-head h3{margin:4px 0;font-size:1.25rem;color:#102a43}.market-button{border:0;border-radius:12px;padding:12px 18px;background:#16a99b;color:#fff;font-weight:700;cursor:pointer}.market-button:disabled{opacity:.55;cursor:wait}.market-status{color:#647b91;margin:12px 0}.market-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px}.market-card{border:1px solid #e5edf4;border-radius:14px;padding:12px;display:flex;flex-direction:column;min-width:0}.market-card img{width:100%;height:150px;object-fit:contain;background:#fff}.market-card h4{font-size:15px;line-height:1.4;color:#102a43;margin:10px 0}.market-price{color:#078a7e;font-weight:800;margin-top:auto;padding:8px 0}.market-card a{display:block;text-align:center;text-decoration:none;background:#102a43;color:white;border-radius:9px;padding:10px;font-weight:700}.market-note{font-size:12px;color:#718399;margin-top:8px}@media(max-width:600px){.market-head{align-items:flex-start;flex-direction:column}.market-button{width:100%}.market-search{padding:16px}}
+/* FIX: keep database product images inside a fixed media panel */
+.grid .card {
+  min-width: 0;
+  height: 100%;
+  overflow: hidden;
+}
+.grid .card > .art,
+.grid .card > .art.image-art {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  height: 230px !important;
+  min-height: 230px !important;
+  max-height: 230px !important;
+  flex: 0 0 230px !important;
+  padding: 12px !important;
+  overflow: hidden !important;
+  background: #fff !important;
+}
+.grid .card > .art .product-image {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  object-fit: contain !important;
+  object-position: center !important;
+}
+.grid .card > .card-body {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  background: #fff;
+  padding: 16px !important;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  gap: 5px;
+}
+.grid .card .badge {
+  color: #078577 !important;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+.grid .card h3 {
+  color: #102a43 !important;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+.grid .card .card-body p {
+  color: #62758a !important;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+.grid .card .product-price {
+  color: #078577 !important;
+  margin-top: auto;
+  padding-top: 8px;
+}
+.grid .card .product-link {
+  margin-top: 8px;
+  flex-shrink: 0;
+}
+@media (max-width: 760px) {
+  .grid .card > .art,
+  .grid .card > .art.image-art {
+    height: 190px !important;
+    min-height: 190px !important;
+    max-height: 190px !important;
+    flex-basis: 190px !important;
+  }
+}
