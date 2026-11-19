@@ -84,7 +84,7 @@
   maximumFractionDigits: 2
 }).format(amount);
     } catch (_) {
-      return `${amount.toLocaleString()} ${code}`;
+      return `${amount.toLocaleString("en-US")} ${code}`;
     }
   }
   function make(tag, className, value) {
