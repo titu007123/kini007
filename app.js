@@ -11,6 +11,7 @@
   const searchBtn = document.querySelector("#searchBtn");
   const langBtn = document.querySelector("#langBtn");
   let products = [];
+  let ebayProducts = [];
   let category = "all";
   let language = "bn";
 
@@ -25,7 +26,11 @@
       details: "পণ্য দেখুন ↗",
       noLink: "লিংক যোগ করা হয়নি",
       results: "টি পণ্য",
-      retry: "আবার চেষ্টা করুন"
+      retry: "আবার চেষ্টা করুন",
+      ebayLoading: "eBay থেকে পণ্য খোঁজা হচ্ছে…",
+      ebayReady: "eBay থেকে পাওয়া পণ্য",
+      ebayError: "eBay থেকে পণ্য আনা যায়নি। Function settings ও Logs পরীক্ষা করুন।",
+      ebayEmpty: "এই শব্দে eBay-তে কোনো পণ্য পাওয়া যায়নি।"
     },
     en: {
       loading: "Loading products…",
@@ -37,7 +42,11 @@
       details: "View product ↗",
       noLink: "No product link",
       results: "products",
-      retry: "Try again"
+      retry: "Try again",
+      ebayLoading: "Searching eBay…",
+      ebayReady: "Products found on eBay",
+      ebayError: "Could not load eBay products. Check Function settings and Logs.",
+      ebayEmpty: "No eBay products found for this search."
     }
   };
 
@@ -78,11 +87,9 @@
     if (!Number.isFinite(amount)) return `${price} ${currency || ""}`.trim();
     const code = String(currency || "BDT").toUpperCase();
     try {
-     return new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: code,
-  maximumFractionDigits: 2
-}).format(amount);
+      return new Intl.NumberFormat("en-US", {
+        style: "currency", currency: code, maximumFractionDigits: 2
+      }).format(amount);
     } catch (_) {
       return `${amount.toLocaleString("en-US")} ${code}`;
     }
@@ -139,21 +146,6 @@
       if (product.description) body.appendChild(make("p", "", product.description));
       const price = formatPrice(product.price, product.currency);
       if (price) body.appendChild(make("div", "product-price", price));
-      if (product.price_updated_at) {
-  const updatedAt = new Date(product.price_updated_at);
-
-  if (!Number.isNaN(updatedAt.getTime())) {
-    const updatedText = new Intl.DateTimeFormat("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric"
-    }).format(updatedAt);
-
-    body.appendChild(
-      make("small", "price-updated", `Price updated: ${updatedText}`)
-    );
-  }
-}
       const link = safeUrl(product.product_url);
       const action = make(link ? "a" : "span", link ? "product-link" : "product-link disabled", link ? text("details") : text("noLink"));
       if (link) {
@@ -168,6 +160,93 @@
     grid.appendChild(fragment);
   }
 
+  function renderEbayProducts() {
+    const ebayGrid = document.querySelector("#ebayGrid");
+    if (!ebayGrid) return;
+    ebayGrid.replaceChildren();
+    if (!ebayProducts.length) {
+      ebayGrid.appendChild(make("div", "empty", text("ebayEmpty")));
+      return;
+    }
+    const fragment = document.createDocumentFragment();
+    ebayProducts.forEach(item => {
+      const card = make("article", "card");
+      const imageUrl = safeUrl(item.image?.imageUrl || item.thumbnailImages?.[0]?.imageUrl);
+      if (imageUrl) {
+        const imageWrap = make("div", "art image-art");
+        const image = make("img", "product-image");
+        image.src = imageUrl;
+        image.alt = item.title || "eBay product";
+        image.loading = "lazy";
+        image.referrerPolicy = "no-referrer";
+        image.addEventListener("error", () => imageWrap.replaceChildren(make("span", "image-fallback", "🛍️")), { once: true });
+        imageWrap.appendChild(image);
+        card.appendChild(imageWrap);
+      } else {
+        card.appendChild(make("div", "art", "🛍️"));
+      }
+      const body = make("div", "card-body");
+      const categoryName = item.categories?.[0]?.categoryName || "Global";
+      body.appendChild(make("span", "badge", `eBay Global • ${categoryName}`));
+      body.appendChild(make("h3", "", item.title || "eBay product"));
+      const details = [item.condition, item.shortDescription].filter(Boolean).join(" • ");
+      if (details) body.appendChild(make("p", "", details));
+      const priceValue = item.price?.value;
+      const currency = item.price?.currency || "USD";
+      const price = formatPrice(priceValue, currency);
+      if (price) body.appendChild(make("div", "product-price", price));
+      const link = safeUrl(item.itemWebUrl);
+      const action = make(link ? "a" : "span", link ? "product-link" : "product-link disabled", link ? text("details") : text("noLink"));
+      if (link) {
+        action.href = link;
+        action.target = "_blank";
+        action.rel = "noopener noreferrer sponsored";
+      }
+      body.appendChild(action);
+      card.appendChild(body);
+      fragment.appendChild(card);
+    });
+    ebayGrid.appendChild(fragment);
+  }
+
+  async function searchEbay() {
+    const query = String(search.value || "").trim();
+    const section = document.querySelector("#ebaySection");
+    const ebayStatus = document.querySelector("#ebayStatus");
+    if (!section || !ebayStatus) return;
+    if (!query) {
+      section.hidden = true;
+      ebayProducts = [];
+      return;
+    }
+    section.hidden = false;
+    ebayStatus.textContent = text("ebayLoading");
+    document.querySelector("#ebayGrid").replaceChildren(make("div", "empty", text("ebayLoading")));
+    try {
+      const response = await fetch(`${SUPABASE_URL}/functions/v1/dynamic-worker`, {
+        method: "POST",
+        headers: {
+          apikey: SUPABASE_KEY,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ query }),
+        cache: "no-store"
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok || payload.success === false) {
+        throw new Error(payload.error || `Function returned ${response.status}`);
+      }
+      ebayProducts = Array.isArray(payload.products) ? payload.products : [];
+      ebayStatus.textContent = `${text("ebayReady")} (${payload.total ?? ebayProducts.length})`;
+      renderEbayProducts();
+    } catch (error) {
+      console.error("Kini007 eBay search error:", error);
+      ebayProducts = [];
+      ebayStatus.textContent = `${text("ebayError")} ${error.message || ""}`;
+      document.querySelector("#ebayGrid").replaceChildren(make("div", "empty", text("ebayError")));
+    }
+  }
+
   async function loadProducts() {
     if (!SUPABASE_URL || !SUPABASE_KEY) {
       status.textContent = text("missingConfig");
@@ -177,7 +256,7 @@
     status.textContent = text("loading");
     grid.replaceChildren(make("div", "empty", text("loading")));
 
-    const endpoint = `${SUPABASE_URL}/rest/v1/products?select=id,name,description,category,brand,price,currency,image_url,product_url,platform,region,is_active,created_at,price_updated_at&is_active=eq.true&order=created_at.desc&limit=500`;
+    const endpoint = `${SUPABASE_URL}/rest/v1/products?select=id,name,description,category,brand,price,currency,image_url,product_url,platform,region,is_active,created_at&is_active=eq.true&order=created_at.desc&limit=500`;
     try {
       const response = await fetch(endpoint, {
         method: "GET",
@@ -217,8 +296,9 @@
     });
   });
   search.addEventListener("input", render);
-  searchBtn.addEventListener("click", render);
-  search.addEventListener("keydown", event => { if (event.key === "Enter") render(); });
+  function handleSearch() { render(); searchEbay(); }
+  searchBtn.addEventListener("click", handleSearch);
+  search.addEventListener("keydown", event => { if (event.key === "Enter") handleSearch(); });
 
   langBtn.addEventListener("click", () => {
     language = language === "bn" ? "en" : "bn";
@@ -230,6 +310,11 @@
     search.placeholder = language === "bn" ? "পণ্য বা বিষয় খুঁজুন..." : "Search products or topics...";
     status.textContent = products.length ? text("ready") : status.textContent;
     render();
+    if (ebayProducts.length) {
+      const ebayStatus = document.querySelector("#ebayStatus");
+      if (ebayStatus) ebayStatus.textContent = `${text("ebayReady")} (${ebayProducts.length})`;
+      renderEbayProducts();
+    }
   });
 
   document.querySelector("#year").textContent = new Date().getFullYear();

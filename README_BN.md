@@ -50,3 +50,11 @@ HTTPS-এ প্রকাশিত সাইট Android Chrome থেকে Inst
 ### Marketplace সংযোগ সম্পর্কে
 
 Admin থেকে Daraz/Amazon/AliExpress বা অন্য স্টোরের নাম, ওয়েবসাইট, affiliate URL ও integration type সংরক্ষণ করা যায় এবং সেখানকার পণ্যের লিংক ম্যানুয়ালি যোগ করা যায়। স্বয়ংক্রিয় product sync করতে সংশ্লিষ্ট marketplace-এর অনুমোদিত API, affiliate feed বা CSV access এবং প্রয়োজনীয় approval লাগবে। API secret কখনো `admin.js` বা browser code-এ দেবেন না; বাস্তব API connector server-side Edge Function/secure backend-এ তৈরি করতে হবে।
+
+
+## eBay Sandbox Search
+- eBay results are requested only when a visitor submits a search term (Enter or search button).
+- Results are shown in a separate eBay Global section on the same page; existing Supabase products remain unchanged.
+- The frontend calls the Supabase Edge Function `dynamic-worker`.
+- Keep `EBAY_CERT_ID` only in Supabase Edge Function Secrets; never place it in browser files.
+- Sandbox search results are test data. Production credentials and eBay approval are required before live affiliate/commercial use.

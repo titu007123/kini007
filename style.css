@@ -2,76 +2,17 @@
 /* Database-driven product cards */
 .data-status{font-size:13px;color:var(--muted);margin:0 0 5px;min-height:20px}.result-count{font-size:12px;color:var(--muted);margin:0 0 10px}.image-art{padding:10px;background:#fff!important}.product-image{width:100%;height:100%;object-fit:contain}.image-fallback{font-size:54px}.product-price{font-weight:850;color:#078577;font-size:16px;margin:0 0 13px}.product-link{display:block;text-align:center;background:var(--navy);color:#fff;text-decoration:none;border-radius:10px;padding:10px;font-size:13px;font-weight:750}.product-link.disabled{background:#e9eef3;color:#526579}.retry-button{display:block;margin:12px auto 0;border:0;border-radius:9px;background:var(--teal);color:white;padding:10px 18px;font-weight:750;cursor:pointer}.card-body p{white-space:pre-line}
 
-/* FIX: keep database product images inside a fixed media panel */
-.grid .card {
-  min-width: 0;
-  height: 100%;
-  overflow: hidden;
-}
-.grid .card > .art,
-.grid .card > .art.image-art {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  width: 100% !important;
-  height: 230px !important;
-  min-height: 230px !important;
-  max-height: 230px !important;
-  flex: 0 0 230px !important;
-  padding: 12px !important;
-  overflow: hidden !important;
-  background: #fff !important;
-}
-.grid .card > .art .product-image {
-  display: block !important;
-  width: 100% !important;
-  height: 100% !important;
-  max-width: 100% !important;
-  max-height: 100% !important;
-  object-fit: contain !important;
-  object-position: center !important;
-}
-.grid .card > .card-body {
-  position: relative;
-  z-index: 1;
-  min-width: 0;
-  background: #fff;
-  padding: 16px !important;
-  display: flex;
-  flex-direction: column;
-  flex: 1 1 auto;
-  gap: 5px;
-}
-.grid .card .badge {
-  color: #078577 !important;
-  line-height: 1.4;
-  overflow-wrap: anywhere;
-}
-.grid .card h3 {
-  color: #102a43 !important;
-  line-height: 1.4;
-  overflow-wrap: anywhere;
-}
-.grid .card .card-body p {
-  color: #62758a !important;
-  line-height: 1.55;
-  overflow-wrap: anywhere;
-}
-.grid .card .product-price {
-  color: #078577 !important;
-  margin-top: auto;
-  padding-top: 8px;
-}
-.grid .card .product-link {
-  margin-top: 8px;
-  flex-shrink: 0;
-}
-@media (max-width: 760px) {
-  .grid .card > .art,
-  .grid .card > .art.image-art {
-    height: 190px !important;
-    min-height: 190px !important;
-    max-height: 190px !important;
-    flex-basis: 190px !important;
-  }
-}
+/* Product card image and layout refinement (v5) */
+.grid{align-items:stretch;grid-auto-rows:1fr}
+.card{height:100%;min-width:0}
+.card .art{height:205px;min-height:205px;flex:0 0 205px;overflow:hidden}
+.card .image-art{display:flex;align-items:center;justify-content:center;padding:14px 18px;background:#fff!important}
+.card .product-image{display:block;width:100%;height:100%;max-width:100%;max-height:100%;object-fit:contain;object-position:center;min-width:0;min-height:0}
+.card .image-fallback{font-size:48px;line-height:1}
+.card-body{min-height:232px;min-width:0}
+.card h3{min-height:2.55em;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;overflow-wrap:anywhere}
+.card-body p{min-height:4.5em;max-height:4.5em;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;overflow-wrap:anywhere}
+.product-price{margin-top:auto;padding-top:5px}
+.product-link{flex:0 0 auto}
+@media(max-width:760px){.card .art{height:175px;min-height:175px;flex-basis:175px}.card-body{min-height:220px}}
+@media(max-width:430px){.card .art{height:155px;min-height:155px;flex-basis:155px}.card .image-art{padding:10px}.card-body{min-height:215px}.card h3{font-size:14px}}
