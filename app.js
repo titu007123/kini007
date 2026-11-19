@@ -139,6 +139,21 @@
       if (product.description) body.appendChild(make("p", "", product.description));
       const price = formatPrice(product.price, product.currency);
       if (price) body.appendChild(make("div", "product-price", price));
+      if (product.price_updated_at) {
+  const updatedAt = new Date(product.price_updated_at);
+
+  if (!Number.isNaN(updatedAt.getTime())) {
+    const updatedText = new Intl.DateTimeFormat("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric"
+    }).format(updatedAt);
+
+    body.appendChild(
+      make("small", "price-updated", `Price updated: ${updatedText}`)
+    );
+  }
+}
       const link = safeUrl(product.product_url);
       const action = make(link ? "a" : "span", link ? "product-link" : "product-link disabled", link ? text("details") : text("noLink"));
       if (link) {
@@ -162,7 +177,7 @@
     status.textContent = text("loading");
     grid.replaceChildren(make("div", "empty", text("loading")));
 
-    const endpoint = `${SUPABASE_URL}/rest/v1/products?select=id,name,description,category,brand,price,currency,image_url,product_url,platform,region,is_active,created_at&is_active=eq.true&order=created_at.desc&limit=500`;
+    const endpoint = `${SUPABASE_URL}/rest/v1/products?select=id,name,description,category,brand,price,currency,image_url,product_url,platform,region,is_active,created_at,price_updated_at&is_active=eq.true&order=created_at.desc&limit=500`;
     try {
       const response = await fetch(endpoint, {
         method: "GET",
