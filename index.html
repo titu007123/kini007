@@ -1,54 +1,110 @@
 <!doctype html>
-<html lang="bn">
+<html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#102a43"><meta name="description" content="Kinioo7 — Bangladesh and global shopping discoveries, stories and useful content.">
-<link rel="manifest" href="manifest.json"><link rel="icon" href="icon.svg" type="image/svg+xml">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#10243a">
+<meta name="description" content="Kini007 — discover products, deals and useful finds from Bangladesh and around the world.">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="style.css">
-<style>
-.topbar { display:flex; align-items:center; justify-content:space-between; gap:16px; }
-.brand { display:flex; flex-direction:column; align-items:flex-start; gap:4px; text-decoration:none; }
-.brand-logo { display:block; width:118px; height:auto; max-height:100px; object-fit:contain; }
-.brand-tagline { display:block; margin-left:4px; font-size:10px; font-weight:800; letter-spacing:2px; line-height:1.2; color:inherit; }
-@media (max-width:480px) {
-  .brand-logo { width:96px; max-height:82px; }
-  .brand-tagline { font-size:9px; letter-spacing:1.6px; }
-}
-</style>
-<title>Kinioo7 | Smart Discovery</title>
-  <meta name="robots" content="index, follow">
-
+<title>Kini007 | Smart Discovery</title>
+<meta name="robots" content="index, follow">
 <link rel="canonical" href="https://titu007123.github.io/kini007/">
-
 <meta property="og:type" content="website">
-<meta property="og:title" content="Kini007 | Smart Shopping Discovery">
-<meta property="og:description" content="Discover products, shopping deals and useful content from Kini007.">
+<meta property="og:title" content="Kini007 | Smart Discovery">
+<meta property="og:description" content="Discover more. Shop smarter.">
 <meta property="og:url" content="https://titu007123.github.io/kini007/">
 <meta property="og:site_name" content="Kini007">
-
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Kini007 | Smart Shopping Discovery">
-<meta name="twitter:description" content="Discover smarter shopping with Kini007.">
+<meta name="twitter:title" content="Kini007 | Smart Discovery">
+<meta name="twitter:description" content="Discover more. Shop smarter.">
 </head>
 <body>
 <header class="topbar">
-<a class="brand" href="#" aria-label="Kini007 Home">
-  <img class="brand-logo" src="logo.png" alt="Kini007">
-  <span class="brand-tagline">SMART DISCOVERY</span>
-</a>
-<div class="actions"><button id="langBtn" class="ghost">EN</button><button id="installBtn" class="install" hidden>Install App</button></div></header>
-<section class="hero"><div><p class="eyebrow" data-bn="স্মার্ট শপিং • গল্প • আবিষ্কার" data-en="SHOP SMART • READ • DISCOVER">স্মার্ট শপিং • গল্প • আবিষ্কার</p>
-<h1 data-bn="আপনার পছন্দের সবকিছু, এক জায়গায়।" data-en="Discover more. Shop smarter.">আপনার পছন্দের সবকিছু, এক জায়গায়।</h1>
-<p data-bn="বাংলাদেশ ও বিশ্বের দরকারি পণ্য, অফার এবং অনুপ্রেরণার কনটেন্ট খুঁজে নিন।" data-en="Explore useful products, deals and inspiring content from Bangladesh and around the world.">বাংলাদেশ ও বিশ্বের দরকারি পণ্য, অফার এবং অনুপ্রেরণার কনটেন্ট খুঁজে নিন।</p>
-<a class="hero-cta" href="#discover" data-bn="এখনই ঘুরে দেখুন ↓" data-en="Explore now ↓">এখনই ঘুরে দেখুন ↓</a></div><div class="hero-orb"><span>7</span><i>✦</i></div></section>
-<main id="discover">
-<div class="section-head"><div><p class="eyebrow" data-bn="আপনার জন্য বাছাই" data-en="CURATED FOR YOU">আপনার জন্য বাছাই</p><h2 data-bn="আজ কী খুঁজছেন?" data-en="What are you looking for?">আজ কী খুঁজছেন?</h2></div></div>
-<div class="searchrow"><input id="search" type="search" placeholder="পণ্য বা বিষয় খুঁজুন..." aria-label="Search"><button id="searchBtn">⌕</button></div>
-<nav class="tabs" aria-label="Categories"><button class="tab active" data-cat="all" data-bn="সব" data-en="All">সব</button><button class="tab" data-cat="bd" data-bn="বাংলাদেশ" data-en="Bangladesh">বাংলাদেশ</button><button class="tab" data-cat="global" data-bn="বিশ্ব" data-en="Global">বিশ্ব</button><button class="tab" data-cat="fashion" data-bn="ফ্যাশন" data-en="Fashion">ফ্যাশন</button><button class="tab" data-cat="tech" data-bn="প্রযুক্তি" data-en="Tech">প্রযুক্তি</button><button class="tab" data-cat="stories" data-bn="গল্প" data-en="Stories">গল্প</button><button class="tab" data-cat="islamic" data-bn="ইসলামিক" data-en="Islamic">ইসলামিক</button></nav>
-<p id="dataStatus" class="data-status" role="status" aria-live="polite">ডেটাবেস থেকে পণ্য লোড করা হচ্ছে…</p><p id="resultCount" class="result-count" aria-live="polite"></p><div id="grid" class="grid"></div><section id="ebaySection" class="ebay-section" hidden><div class="section-head ebay-heading"><div><p class="eyebrow">EBAY GLOBAL</p><h2 data-bn="eBay-তে পাওয়া পণ্য" data-en="Products found on eBay">eBay-তে পাওয়া পণ্য</h2></div></div><p id="ebayStatus" class="data-status" role="status" aria-live="polite"></p><div id="ebayGrid" class="grid"></div></section>
-<section class="notice"><div class="notice-icon">💡</div><div><h3 data-bn="কীভাবে Kinioo7 আয় করবে?" data-en="How can Kinioo7 earn?">কীভাবে Kinioo7 আয় করবে?</h3><p data-bn="অনুমোদিত affiliate link থেকে কেনাকাটা হলে কমিশন, এবং অনুমোদনের পর বিজ্ঞাপন ও স্পনসরড কনটেন্ট থেকে আয় হতে পারে।" data-en="Earn commissions from approved affiliate links, and potentially from ads and sponsored content after approval.">অনুমোদিত affiliate link থেকে কেনাকাটা হলে কমিশন, এবং অনুমোদনের পর বিজ্ঞাপন ও স্পনসরড কনটেন্ট থেকে আয় হতে পারে।</p></div></section>
+  <a class="brand" href="#" aria-label="Kini007 Home">
+    <img class="brand-logo" src="logo.png" alt="Kini007">
+    <span class="brand-tagline">SMART DISCOVERY</span>
+  </a>
+  <div class="header-actions">
+    <a class="header-link" href="#discover">Explore</a>
+    <a class="header-link" href="#footer">About</a>
+    <button id="installBtn" class="install" hidden>Install App</button>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero-copy">
+    <p class="eyebrow">SHOP SMART · DISCOVER MORE</p>
+    <h1>Discover more.<br><span>Shop smarter.</span></h1>
+    <p>Explore hand-picked products, useful finds and fresh discoveries from Bangladesh and around the world.</p>
+    <a class="hero-cta" href="#discover">Explore Products <span aria-hidden="true">→</span></a>
+  </div>
+  <div class="hero-art" aria-hidden="true">
+    <div class="hero-orbit orbit-one"></div><div class="hero-orbit orbit-two"></div>
+    <div class="hero-mark">K<span>7</span></div>
+    <div class="hero-caption">SMART DISCOVERY</div>
+  </div>
+</section>
+
+<main id="discover" class="content-shell">
+  <div class="section-head">
+    <div><p class="eyebrow">CURATED FOR YOU</p><h2>Explore Categories</h2></div>
+    <span class="section-note">Find your next great discovery</span>
+  </div>
+  <div class="searchrow">
+    <input id="search" type="search" placeholder="Search products, brands or topics..." aria-label="Search products">
+    <button id="searchBtn" aria-label="Search">⌕</button>
+  </div>
+  <nav class="tabs" aria-label="Product categories">
+    <button class="tab active" data-cat="all">All</button>
+    <button class="tab" data-cat="bd">Bangladesh</button>
+    <button class="tab" data-cat="global">Global</button>
+    <button class="tab" data-cat="fashion">Fashion</button>
+    <button class="tab" data-cat="tech">Technology</button>
+    <button class="tab" data-cat="stories">Stories</button>
+    <button class="tab" data-cat="islamic">Islamic</button>
+    <button class="tab" data-cat="diamond">Diamond</button>
+  </nav>
+  <p id="dataStatus" class="data-status" role="status" aria-live="polite">Loading products…</p>
+  <p id="resultCount" class="result-count" aria-live="polite"></p>
+  <div id="grid" class="grid"></div>
+
+  <section id="ebaySection" class="ebay-section" hidden>
+    <div class="section-head"><div><p class="eyebrow">GLOBAL MARKETPLACE</p><h2>Products found on eBay</h2></div></div>
+    <p id="ebayStatus" class="data-status" role="status" aria-live="polite"></p>
+    <div id="ebayGrid" class="grid"></div>
+  </section>
+
+  <section class="notice">
+    <div class="notice-icon">✦</div>
+    <div><h3>How Kini007 Works</h3><p>Discover products and useful content in one place. Some product links may earn us a commission at no extra cost to you.</p></div>
+  </section>
 </main>
-<footer><strong>Kinioo7</strong><p data-bn="স্বচ্ছ সুপারিশ • স্মার্ট আবিষ্কার" data-en="Transparent recommendations • Smart discovery">স্বচ্ছ সুপারিশ • স্মার্ট আবিষ্কার</p><small>© <span id="year"></span> Kinioo7. Affiliate disclosure: Some links may earn us a commission at no extra cost to you. <a href="admin.html" class="admin-entry">Admin</a></small></footer>
+
+<aside class="social-rail" aria-label="Kini007 social media">
+  <span class="social-label">FOLLOW US</span>
+  <a class="social-icon facebook" href="#" aria-label="Facebook — coming soon" title="Facebook — coming soon">f</a>
+  <a class="social-icon instagram" href="#" aria-label="Instagram — coming soon" title="Instagram — coming soon">◎</a>
+  <a class="social-icon youtube" href="#" aria-label="YouTube — coming soon" title="YouTube — coming soon">▶</a>
+  <a class="social-icon tiktok" href="#" aria-label="TikTok — coming soon" title="TikTok — coming soon">♪</a>
+  <a class="social-icon pinterest" href="#" aria-label="Pinterest — coming soon" title="Pinterest — coming soon">p</a>
+</aside>
+
+<footer id="footer" class="site-footer">
+  <div class="footer-main">
+    <div class="footer-brand"><img src="logo.png" alt="Kini007"><p>SMART DISCOVERY</p><span>Discover more. Shop smarter.</span></div>
+    <div class="footer-column"><h3>Get to Know Us</h3><a href="#footer">About Kini007</a><a href="#footer">Customer Service</a></div>
+    <div class="footer-column"><h3>Policies</h3><a href="#footer">Conditions of Use</a><a href="#footer">Privacy Notice</a><a href="#footer">Consumer Health Data Privacy Disclosure</a><a href="#footer">Your Ads Privacy Choices</a></div>
+    <div class="footer-column"><h3>Connect</h3><p>Follow Kini007 on social media as we launch our channels.</p></div>
+  </div>
+  <div class="footer-bottom">
+    <span>© <span id="year"></span> Kini007. All rights reserved.</span>
+    <span>Affiliate disclosure: Some links may earn us a commission at no extra cost to you.</span>
+    <a href="admin.html" class="admin-entry">Admin</a>
+  </div>
+</footer>
+
 <script src="supabase-config.js"></script>
 <script src="app.js"></script>
 </body></html>

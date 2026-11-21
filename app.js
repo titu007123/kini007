@@ -9,11 +9,10 @@
   const status = document.querySelector("#dataStatus");
   const resultCount = document.querySelector("#resultCount");
   const searchBtn = document.querySelector("#searchBtn");
-  const langBtn = document.querySelector("#langBtn");
   let products = [];
   let ebayProducts = [];
   let category = "all";
-  let language = "bn";
+  let language = "en";
 
   const copy = {
     bn: {
@@ -79,6 +78,10 @@
     const source = (selected === "bd" || selected === "global")
       ? `${regionValue} ${categoryValue}`
       : categoryValue;
+    if (selected === "diamond") {
+      const jewelryTerms = ["diamond", "jewelry", "jewellery", "ring", "necklace", "earring", "bracelet", "pendant"];
+      return jewelryTerms.some(term => source.includes(normalize(term)));
+    }
     return terms.some(term => source.includes(normalize(term)));
   }
   function formatPrice(price, currency) {
@@ -256,7 +259,7 @@
     status.textContent = text("loading");
     grid.replaceChildren(make("div", "empty", text("loading")));
 
-    const endpoint = `${SUPABASE_URL}/rest/v1/products?select=id,name,description,category,brand,price,currency,image_url,product_url,platform,region,is_active,created_at&is_active=eq.true&order=created_at.desc&limit=500`;
+    const endpoint = `${SUPABASE_URL}/rest/v1/products?select=id,name,description,category,brand,price,currency,image_url,product_url,platform,region,is_active,created_at&is_active=eq.true&order=created_at.desc&limit=10000`;
     try {
       const response = await fetch(endpoint, {
         method: "GET",
@@ -299,23 +302,6 @@
   function handleSearch() { render(); searchEbay(); }
   searchBtn.addEventListener("click", handleSearch);
   search.addEventListener("keydown", event => { if (event.key === "Enter") handleSearch(); });
-
-  langBtn.addEventListener("click", () => {
-    language = language === "bn" ? "en" : "bn";
-    langBtn.textContent = language === "bn" ? "EN" : "বাংলা";
-    document.documentElement.lang = language;
-    document.querySelectorAll("[data-bn][data-en]").forEach(element => {
-      element.textContent = element.dataset[language];
-    });
-    search.placeholder = language === "bn" ? "পণ্য বা বিষয় খুঁজুন..." : "Search products or topics...";
-    status.textContent = products.length ? text("ready") : status.textContent;
-    render();
-    if (ebayProducts.length) {
-      const ebayStatus = document.querySelector("#ebayStatus");
-      if (ebayStatus) ebayStatus.textContent = `${text("ebayReady")} (${ebayProducts.length})`;
-      renderEbayProducts();
-    }
-  });
 
   document.querySelector("#year").textContent = new Date().getFullYear();
   let installPrompt;
