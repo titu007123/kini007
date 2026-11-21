@@ -4,7 +4,18 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#102a43"><meta name="description" content="Kinioo7 — Bangladesh and global shopping discoveries, stories and useful content.">
 <link rel="manifest" href="manifest.json"><link rel="icon" href="icon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="style.css"><title>Kinioo7 | Smart Discovery</title>
+<link rel="stylesheet" href="style.css">
+<style>
+.topbar { display:flex; align-items:center; justify-content:space-between; gap:16px; }
+.brand { display:flex; flex-direction:column; align-items:flex-start; gap:4px; text-decoration:none; }
+.brand-logo { display:block; width:118px; height:auto; max-height:100px; object-fit:contain; }
+.brand-tagline { display:block; margin-left:4px; font-size:10px; font-weight:800; letter-spacing:2px; line-height:1.2; color:inherit; }
+@media (max-width:480px) {
+  .brand-logo { width:96px; max-height:82px; }
+  .brand-tagline { font-size:9px; letter-spacing:1.6px; }
+}
+</style>
+<title>Kinioo7 | Smart Discovery</title>
   <meta name="robots" content="index, follow">
 
 <link rel="canonical" href="https://titu007123.github.io/kini007/">
@@ -20,7 +31,11 @@
 <meta name="twitter:description" content="Discover smarter shopping with Kini007.">
 </head>
 <body>
-<header class="topbar"><a class="brand" href="#"><img src="icon.svg" alt=""><span>Kinioo<span class="seven">7</span><small>SMART DISCOVERY</small></span></a>
+<header class="topbar">
+<a class="brand" href="#" aria-label="Kini007 Home">
+  <img class="brand-logo" src="logo.png" alt="Kini007">
+  <span class="brand-tagline">SMART DISCOVERY</span>
+</a>
 <div class="actions"><button id="langBtn" class="ghost">EN</button><button id="installBtn" class="install" hidden>Install App</button></div></header>
 <section class="hero"><div><p class="eyebrow" data-bn="স্মার্ট শপিং • গল্প • আবিষ্কার" data-en="SHOP SMART • READ • DISCOVER">স্মার্ট শপিং • গল্প • আবিষ্কার</p>
 <h1 data-bn="আপনার পছন্দের সবকিছু, এক জায়গায়।" data-en="Discover more. Shop smarter.">আপনার পছন্দের সবকিছু, এক জায়গায়।</h1>
