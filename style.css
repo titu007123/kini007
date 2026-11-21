@@ -124,3 +124,15 @@
   }
   .social-rail .social-icon { width: 32px; height: 32px; }
 }
+
+/* Kini007 brand teal: View Product buttons */
+.card .product-link {
+  background: #10606A !important;
+  color: #ffffff !important;
+  border: 1px solid #10606A;
+}
+.card .product-link:hover {
+  background: #0C5059 !important;
+  border-color: #0C5059;
+  color: #ffffff !important;
+}
