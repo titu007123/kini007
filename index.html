@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#10243a">
-<meta name="description" content="Kini007 — discover products, deals and useful finds from Bangladesh and around the world.">
+<meta name="theme-color" content="#073b45">
+<meta name="description" content="Kini007 — Smart Discovery. Discover products, useful finds and affiliate deals from Bangladesh and around the world.">
+<title>Kini007 | Smart Discovery</title>
+<link rel="canonical" href="https://titu007123.github.io/kini007/">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="style.css">
-<title>Kini007 | Smart Discovery</title>
 <meta name="robots" content="index, follow">
-<link rel="canonical" href="https://titu007123.github.io/kini007/">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Kini007 | Smart Discovery">
 <meta property="og:description" content="Discover more. Shop smarter.">
@@ -21,90 +21,126 @@
 <meta name="twitter:description" content="Discover more. Shop smarter.">
 </head>
 <body>
-<header class="topbar">
+<header class="site-header">
   <a class="brand" href="#" aria-label="Kini007 Home">
-    <img class="brand-logo" src="logo.png" alt="Kini007">
-    <span class="brand-tagline">SMART DISCOVERY</span>
+    <img src="secondary-logo.png" alt="K7 Kini007 Smart Discovery" class="brand-logo">
   </a>
-  <div class="header-actions">
-    <a class="header-link" href="#discover">Explore</a>
-    <a class="header-link" href="#footer">About</a>
-    <button id="installBtn" class="install" hidden>Install App</button>
-  </div>
+  <form class="header-search" role="search" onsubmit="return false">
+    <span class="search-symbol" aria-hidden="true">⌕</span>
+    <input id="search" type="search" placeholder="Search for products, deals, or categories..." aria-label="Search products">
+    <button id="searchBtn" type="button" aria-label="Search">Search</button>
+  </form>
+  <nav class="main-nav" aria-label="Main navigation">
+    <a class="nav-active" href="#">Home</a>
+    <a href="#discover">Explore</a>
+    <a href="#about">About</a>
+    <button class="theme-toggle" type="button" aria-label="Color theme">◐</button>
+    <button id="installBtn" class="install-btn" hidden>↓ <span>Install App</span></button>
+  </nav>
 </header>
 
+<main>
 <section class="hero">
-  <div class="hero-copy">
-    <p class="eyebrow">SHOP SMART · DISCOVER MORE</p>
+  <div class="hero-content">
+    <p class="eyebrow">SHOP SMART <span>•</span> DISCOVER MORE</p>
     <h1>Discover more.<br><span>Shop smarter.</span></h1>
-    <p>Explore hand-picked products, useful finds and fresh discoveries from Bangladesh and around the world.</p>
-    <a class="hero-cta" href="#discover">Explore Products <span aria-hidden="true">→</span></a>
+    <p class="hero-description">Explore hand-picked products, best deals and useful finds from Bangladesh and around the world.</p>
+    <div class="hero-actions">
+      <a class="button button-primary" href="#discover">♧ &nbsp; Explore Products <span>→</span></a>
+      <a class="button button-outline" href="#about">▷ &nbsp; How It Works</a>
+    </div>
+    <div class="trust-points">
+      <span>ϟ &nbsp; Best Deals</span><i></i><span>♢ &nbsp; Trusted Links</span><i></i><span>％ &nbsp; Affiliate Offers</span>
+    </div>
   </div>
-  <div class="hero-art" aria-hidden="true">
-    <div class="hero-orbit orbit-one"></div><div class="hero-orbit orbit-two"></div>
-    <div class="hero-mark">K<span>7</span></div>
-    <div class="hero-caption">SMART DISCOVERY</div>
+  <div class="hero-brand-art">
+    <img src="primary-logo.png" alt="K7 Smart Discovery primary logo">
   </div>
 </section>
 
-<main id="discover" class="content-shell">
-  <div class="section-head">
-    <div><p class="eyebrow">CURATED FOR YOU</p><h2>Explore Categories</h2></div>
-    <span class="section-note">Find your next great discovery</span>
+<section class="category-strip" aria-label="Shop by category">
+  <button class="tab category-tile active" data-cat="all"><span>▦</span><b>All Categories</b></button>
+  <button class="tab category-tile" data-cat="tech"><span>▱</span><b>Electronics</b></button>
+  <button class="tab category-tile" data-cat="mobile"><span>▯</span><b>Mobile</b></button>
+  <button class="tab category-tile" data-cat="accessories"><span>♧</span><b>Accessories</b></button>
+  <button class="tab category-tile" data-cat="home"><span>⌂</span><b>Home & Living</b></button>
+  <button class="tab category-tile" data-cat="health"><span>♧</span><b>Health & Fitness</b></button>
+  <button class="tab category-tile" data-cat="books"><span>▤</span><b>Books & Study</b></button>
+  <button class="tab category-tile" data-cat="fashion"><span>◇</span><b>Fashion</b></button>
+  <button class="tab category-tile" data-cat="diamond"><span>✧</span><b>Diamond</b></button>
+  <button class="tab category-tile" data-cat="global"><span>◎</span><b>Global</b></button>
+</section>
+
+<section id="discover" class="products-section">
+  <div class="section-heading">
+    <div><p class="eyebrow dark-eyebrow">CURATED FOR YOU</p><h2><span class="flame">♨</span> Featured Discoveries</h2></div>
+    <a href="#discover" class="view-all">View All <span>→</span></a>
   </div>
-  <div class="searchrow">
-    <input id="search" type="search" placeholder="Search products, brands or topics..." aria-label="Search products">
-    <button id="searchBtn" aria-label="Search">⌕</button>
+  <div class="product-tools">
+    <div class="category-pills" aria-label="Product filters">
+      <button class="tab filter-pill active" data-cat="all">All</button>
+      <button class="tab filter-pill" data-cat="bd">Bangladesh</button>
+      <button class="tab filter-pill" data-cat="global">Global</button>
+      <button class="tab filter-pill" data-cat="fashion">Fashion</button>
+      <button class="tab filter-pill" data-cat="tech">Technology</button>
+      <button class="tab filter-pill" data-cat="diamond">Diamond</button>
+      <button class="tab filter-pill" data-cat="stories">Stories</button>
+      <button class="tab filter-pill" data-cat="islamic">Islamic</button>
+    </div>
+    <span id="resultCount" class="result-count"></span>
   </div>
-  <nav class="tabs" aria-label="Product categories">
-    <button class="tab active" data-cat="all">All</button>
-    <button class="tab" data-cat="bd">Bangladesh</button>
-    <button class="tab" data-cat="global">Global</button>
-    <button class="tab" data-cat="fashion">Fashion</button>
-    <button class="tab" data-cat="tech">Technology</button>
-    <button class="tab" data-cat="stories">Stories</button>
-    <button class="tab" data-cat="islamic">Islamic</button>
-    <button class="tab" data-cat="diamond">Diamond</button>
-  </nav>
   <p id="dataStatus" class="data-status" role="status" aria-live="polite">Loading products…</p>
-  <p id="resultCount" class="result-count" aria-live="polite"></p>
-  <div id="grid" class="grid"></div>
+  <div id="grid" class="product-grid"></div>
+</section>
 
-  <section id="ebaySection" class="ebay-section" hidden>
-    <div class="section-head"><div><p class="eyebrow">GLOBAL MARKETPLACE</p><h2>Products found on eBay</h2></div></div>
-    <p id="ebayStatus" class="data-status" role="status" aria-live="polite"></p>
-    <div id="ebayGrid" class="grid"></div>
-  </section>
+<section id="ebaySection" class="ebay-section" hidden>
+  <div class="section-heading"><div><p class="eyebrow dark-eyebrow">GLOBAL MARKETPLACE</p><h2>More results from eBay</h2></div></div>
+  <p id="ebayStatus" class="data-status" role="status" aria-live="polite"></p>
+  <div id="ebayGrid" class="product-grid"></div>
+</section>
 
-  <section class="notice">
-    <div class="notice-icon">✦</div>
-    <div><h3>How Kini007 Works</h3><p>Discover products and useful content in one place. Some product links may earn us a commission at no extra cost to you.</p></div>
-  </section>
+<section class="app-promo">
+  <div class="app-promo-copy">
+    <p class="eyebrow">DISCOVER ON THE GO</p>
+    <h2>Get the Kini007 Experience</h2>
+    <p>Keep your favorite discoveries close and explore smarter wherever you go.</p>
+    <ul><li>Faster access to product discovery</li><li>Save your favorite finds</li><li>Stay updated with new deals</li></ul>
+    <button class="button button-dark" id="promoInstall" type="button">↓ &nbsp; Install App</button>
+  </div>
+  <div class="app-device" aria-hidden="true"><div class="device-camera"></div><img src="secondary-logo.png" alt=""></div>
+  <div class="promo-shape shape-one"></div><div class="promo-shape shape-two"></div>
+</section>
+
+<section id="about" class="about-strip">
+  <div class="about-icon">✦</div><div><h3>How Kini007 Works</h3><p>Discover products and useful content in one place. Some product links may earn us a commission at no extra cost to you.</p></div>
+  <div class="about-badge">SMART DISCOVERY</div>
+</section>
 </main>
 
-<aside class="social-rail" aria-label="Kini007 social media">
-  <span class="social-label">FOLLOW US</span>
-  <a class="social-icon facebook" href="#" aria-label="Facebook — coming soon" title="Facebook — coming soon">f</a>
-  <a class="social-icon instagram" href="#" aria-label="Instagram — coming soon" title="Instagram — coming soon">◎</a>
-  <a class="social-icon youtube" href="#" aria-label="YouTube — coming soon" title="YouTube — coming soon">▶</a>
-  <a class="social-icon tiktok" href="#" aria-label="TikTok — coming soon" title="TikTok — coming soon">♪</a>
-  <a class="social-icon pinterest" href="#" aria-label="Pinterest — coming soon" title="Pinterest — coming soon">p</a>
-</aside>
-
-<footer id="footer" class="site-footer">
+<footer class="site-footer">
   <div class="footer-main">
-    <div class="footer-brand"><img src="logo.png" alt="Kini007"><p>SMART DISCOVERY</p><span>Discover more. Shop smarter.</span></div>
-    <div class="footer-column"><h3>Get to Know Us</h3><a href="#footer">About Kini007</a><a href="#footer">Customer Service</a></div>
-    <div class="footer-column"><h3>Policies</h3><a href="#footer">Conditions of Use</a><a href="#footer">Privacy Notice</a><a href="#footer">Consumer Health Data Privacy Disclosure</a><a href="#footer">Your Ads Privacy Choices</a></div>
-    <div class="footer-column"><h3>Connect</h3><p>Follow Kini007 on social media as we launch our channels.</p></div>
+    <div class="footer-brand"><img src="primary-logo.png" alt="Kini007 K7 Primary Logo"><p>Discover more. Shop smarter.</p></div>
+    <div class="footer-description">A smart shopping and discovery platform with curated products and affiliate deals.</div>
+    <div class="footer-social" aria-label="Kini007 social media">
+      <span class="footer-social-title">FOLLOW KINI007</span>
+      <a href="#" aria-label="YouTube">▶</a><a href="#" aria-label="Facebook">f</a><a href="#" aria-label="Instagram">◎</a><a href="#" aria-label="Telegram">➤</a>
+    </div>
+    <div class="footer-links"><a href="#about">About</a><a href="#footer-terms">Terms</a><a href="#footer-privacy">Privacy</a><a href="#footer-contact">Contact</a></div>
   </div>
-  <div class="footer-bottom">
-    <span>© <span id="year"></span> Kini007. All rights reserved.</span>
-    <span>Affiliate disclosure: Some links may earn us a commission at no extra cost to you.</span>
-    <a href="admin.html" class="admin-entry">Admin</a>
-  </div>
+  <div class="footer-bottom"><span>© <span id="year"></span> Kini007. All rights reserved.</span><span>Affiliate disclosure: Some links may earn us a commission at no extra cost to you.</span><a href="admin.html">Admin</a></div>
 </footer>
 
 <script src="supabase-config.js"></script>
 <script src="app.js"></script>
-</body></html>
+<script>
+  document.querySelectorAll(".category-tile, .filter-pill").forEach(button => {
+    button.addEventListener("click", () => {
+      document.querySelectorAll(".category-tile, .filter-pill").forEach(item => item.classList.remove("active"));
+      document.querySelectorAll('[data-cat="' + button.dataset.cat + '"]').forEach(item => item.classList.add("active"));
+    });
+  });
+  document.querySelector(".theme-toggle")?.addEventListener("click", () => document.body.classList.toggle("dark-mode"));
+  document.querySelector("#promoInstall")?.addEventListener("click", () => document.querySelector("#installBtn")?.click());
+</script>
+</body>
+</html>

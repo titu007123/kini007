@@ -70,14 +70,19 @@
       fashion: ["fashion", "ফ্যাশন", "clothing", "beauty"],
       tech: ["tech", "technology", "electronics", "প্রযুক্তি", "ইলেকট্রনিক্স"],
       stories: ["stories", "story", "গল্প"],
-      islamic: ["islamic", "ইসলামিক", "ইসলাম"]
+      islamic: ["islamic", "ইসলামিক", "ইসলাম"],
+      home: ["home", "living", "kitchen", "furniture", "decor"],
+      health: ["health", "fitness", "gym", "wellness", "medical"],
+      books: ["book", "study", "education", "stationery"],
+      mobile: ["mobile", "phone", "smartphone"],
+      accessories: ["accessory", "accessories", "headphone", "earbud", "watch"]
     };
     const terms = groups[selected] || [selected];
 
     // Bangladesh/Global are regions in the database schema, not product categories.
     const source = (selected === "bd" || selected === "global")
       ? `${regionValue} ${categoryValue}`
-      : categoryValue;
+      : `${categoryValue} ${normalize(product.name)} ${normalize(product.description)}`;
     if (selected === "diamond") {
       const jewelryTerms = ["diamond", "jewelry", "jewellery", "ring", "necklace", "earring", "bracelet", "pendant"];
       return jewelryTerms.some(term => source.includes(normalize(term)));
