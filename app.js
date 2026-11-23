@@ -60,14 +60,14 @@
     } catch (_) { return ""; }
   }
 
-  // Record affiliate clicks without delaying the visitor's new tab.
-  function trackAffiliateClick({ productId = null, productName, platform = "", destinationUrl }) {
+  // Record affiliate clicks without delaying or blocking the destination link.
+  function trackAffiliateClick({ productId = null, productName = "", platform = "", destinationUrl = "" }) {
     if (!SUPABASE_URL || !SUPABASE_KEY || !destinationUrl) return;
 
     const payload = {
       product_id: productId == null ? null : String(productId),
-      product_name: String(productName || "Unnamed product").slice(0, 500),
-      platform: String(platform || "Unknown").slice(0, 100),
+      product_name: String(productName || "").slice(0, 500),
+      platform: String(platform || "").slice(0, 100),
       destination_url: String(destinationUrl).slice(0, 2000)
     };
 
@@ -80,7 +80,9 @@
       },
       body: JSON.stringify(payload),
       keepalive: true
-    }).catch(error => console.warn("Kini007 affiliate click tracking failed:", error));
+    }).catch(error => {
+      console.warn("Kini007 affiliate click tracking failed:", error);
+    });
   }
   function categoryMatches(product, selected) {
     if (selected === "all") return true;
@@ -189,12 +191,14 @@
         action.href = link;
         action.target = "_blank";
         action.rel = "noopener noreferrer sponsored";
-        action.addEventListener("click", () => trackAffiliateClick({
-          productId: product.id,
-          productName: product.name,
-          platform: product.platform || "Unknown",
-          destinationUrl: link
-        }));
+        action.addEventListener("click", () => {
+          trackAffiliateClick({
+            productId: product.id,
+            productName: product.name,
+            platform: product.platform,
+            destinationUrl: link
+          });
+        });
       }
       body.appendChild(action);
       card.appendChild(body);
@@ -244,12 +248,14 @@
         action.href = link;
         action.target = "_blank";
         action.rel = "noopener noreferrer sponsored";
-        action.addEventListener("click", () => trackAffiliateClick({
-          productId: item.itemId || null,
-          productName: item.title || "eBay product",
-          platform: "eBay",
-          destinationUrl: link
-        }));
+        action.addEventListener("click", () => {
+          trackAffiliateClick({
+            productId: item.itemId || item.legacyItemId || null,
+            productName: item.title || "eBay product",
+            platform: "eBay",
+            destinationUrl: link
+          });
+        });
       }
       body.appendChild(action);
       card.appendChild(body);
