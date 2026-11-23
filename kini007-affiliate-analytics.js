@@ -311,7 +311,8 @@
     document.body.append(a);
     a.click();
     a.remove();
-    URL.revokeObjectURL(url);
+    // Keep the object URL alive briefly so the browser can start the download.
+    window.setTimeout(() => URL.revokeObjectURL(url), 2000);
     $("affiliateMessage").textContent = `${activeRows.length.toLocaleString()}টি রেকর্ড CSV ফাইলে Export হয়েছে।`;
   }
 
