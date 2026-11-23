@@ -59,6 +59,29 @@
       return url.protocol === "https:" || url.protocol === "http:" ? url.href : "";
     } catch (_) { return ""; }
   }
+
+  // Record affiliate clicks without delaying the visitor's new tab.
+  function trackAffiliateClick({ productId = null, productName, platform = "", destinationUrl }) {
+    if (!SUPABASE_URL || !SUPABASE_KEY || !destinationUrl) return;
+
+    const payload = {
+      product_id: productId == null ? null : String(productId),
+      product_name: String(productName || "Unnamed product").slice(0, 500),
+      platform: String(platform || "Unknown").slice(0, 100),
+      destination_url: String(destinationUrl).slice(0, 2000)
+    };
+
+    fetch(`${SUPABASE_URL}/rest/v1/affiliate_clicks`, {
+      method: "POST",
+      headers: {
+        apikey: SUPABASE_KEY,
+        "Content-Type": "application/json",
+        Prefer: "return=minimal"
+      },
+      body: JSON.stringify(payload),
+      keepalive: true
+    }).catch(error => console.warn("Kini007 affiliate click tracking failed:", error));
+  }
   function categoryMatches(product, selected) {
     if (selected === "all") return true;
 
@@ -166,6 +189,12 @@
         action.href = link;
         action.target = "_blank";
         action.rel = "noopener noreferrer sponsored";
+        action.addEventListener("click", () => trackAffiliateClick({
+          productId: product.id,
+          productName: product.name,
+          platform: product.platform || "Unknown",
+          destinationUrl: link
+        }));
       }
       body.appendChild(action);
       card.appendChild(body);
@@ -215,6 +244,12 @@
         action.href = link;
         action.target = "_blank";
         action.rel = "noopener noreferrer sponsored";
+        action.addEventListener("click", () => trackAffiliateClick({
+          productId: item.itemId || null,
+          productName: item.title || "eBay product",
+          platform: "eBay",
+          destinationUrl: link
+        }));
       }
       body.appendChild(action);
       card.appendChild(body);
