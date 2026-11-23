@@ -84,8 +84,14 @@
       ? `${regionValue} ${categoryValue}`
       : `${categoryValue} ${normalize(product.name)} ${normalize(product.description)}`;
     if (selected === "diamond") {
-      const jewelryTerms = ["diamond", "jewelry", "jewellery", "ring", "necklace", "earring", "bracelet", "pendant"];
-      return jewelryTerms.some(term => source.includes(normalize(term)));
+      // Match complete words only. Using includes("ring") also matched
+      // unrelated words such as "featuring", causing phones/electronics
+      // to appear in the Diamond category.
+      const diamondCategory = /\\bdiamond\\b/i.test(categoryValue);
+      const jewelryPattern = /\\b(diamond|jewelry|jewellery|ring|necklace|earring|bracelet|pendant)\\b/i;
+      return diamondCategory || jewelryPattern.test(
+        `${normalize(product.name)} ${normalize(product.description)}`
+      );
     }
     return terms.some(term => source.includes(normalize(term)));
   }
