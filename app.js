@@ -87,8 +87,8 @@
       // Match complete words only. Using includes("ring") also matched
       // unrelated words such as "featuring", causing phones/electronics
       // to appear in the Diamond category.
-      const diamondCategory = /\\bdiamond\\b/i.test(categoryValue);
-      const jewelryPattern = /\\b(diamond|jewelry|jewellery|ring|necklace|earring|bracelet|pendant)\\b/i;
+      const diamondCategory = /\bdiamond\b/i.test(categoryValue);
+      const jewelryPattern = /\b(diamond|jewelry|jewellery|ring|necklace|earring|bracelet|pendant)\b/i;
       return diamondCategory || jewelryPattern.test(
         `${normalize(product.name)} ${normalize(product.description)}`
       );
