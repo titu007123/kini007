@@ -1,13 +1,24 @@
-KINI007 Seller Management add-on (add-only)
+KINI007 Seller Dashboard + Product Upload (additive files)
 
-1. Upload kini007-seller-management.js to the repository root (same folder as admin.html).
-2. In admin.html, add this one line AFTER the existing admin.js script and AFTER the Supabase SDK/config scripts:
-   <script src="kini007-seller-management.js"></script>
-3. Do not replace admin.html or admin.js. Do not remove existing analytics/performance/quality script lines.
-4. Commit the new JS file and the one-line admin.html edit.
+FILES
+- seller-dashboard.html: standalone seller dashboard page
+- seller-dashboard.css: dashboard styling
+- seller-dashboard.js: authenticated seller product upload/list/edit/hide/delete
+- seller-marketplace-setup.sql: additive database and storage setup
 
-The add-on creates a Seller Management navigation item and section after the existing Admin Panel loads.
-It checks the signed-in session and active admin_users row before reading seller_profiles.
-It uses the private seller-identity-documents bucket and creates 60-second signed URLs.
-It expects seller_profiles to contain identity_document_path. If your actual column has a different name, the page will show a database error; do not change database columns without checking first.
-Never put a Supabase service_role/secret key in browser code.
+INSTALL ORDER
+1. Confirm a fresh products CSV backup is safely saved.
+2. In Supabase SQL Editor, paste seller-marketplace-setup.sql and Run it. It adds seller_id and seller-owned RLS policies plus a public product-image bucket. It does not delete existing products.
+3. In GitHub repository root, Add file -> Upload files. Upload seller-dashboard.html, seller-dashboard.css, seller-dashboard.js.
+4. Commit changes.
+5. Open the seller portal at https://titu007123.github.io/kini007/seller.html and log in with the seller account.
+6. After login, open https://titu007123.github.io/kini007/seller-dashboard.html in the same browser. The dashboard uses the same Supabase Auth session.
+
+IMPORTANT
+- Do not replace seller.html, seller.js, admin.html, admin.js, app.js, or supabase-config.js.
+- Do not upload service_role/secret keys.
+- Seller listings publish as active immediately, matching the chosen no-approval workflow.
+- Seller can only access rows where seller_id equals their own authenticated user ID, enforced by RLS.
+- Public storefront currently displays products from products table. This dashboard creates product listings; a full customer cart/checkout/order flow is a later separate phase.
+- Product images are public because they appear on the public storefront. Identity documents remain in their separate private bucket.
+- Existing affiliate/admin products keep seller_id NULL and are not modified by this setup.
