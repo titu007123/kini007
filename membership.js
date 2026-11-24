@@ -22,8 +22,8 @@
     try{
       const res=await fetch(`https://api.worldbank.org/v2/country/${encodeURIComponent(code)}?format=json`);if(!res.ok)throw Error('World Bank API unavailable');const data=await res.json();const c=data?.[1]?.[0];if(!c||!c.incomeLevel?.id)throw Error('Country not found in World Bank data.');
       const group=c.incomeLevel.id;const map={LIC:1,LMC:1,UMC:2,HIC:3};if(!map[group])throw Error('World Bank income group not available for this territory.');category=map[group];$('countryName').value=c.name;
-      const row={country_code:code,country_name:c.name,world_bank_income_group:group,classification_year:2027};
-      const {error:ce}=await db.from('kini007_country_categories').upsert(row,{onConflict:'country_code'});if(ce)throw ce;
+      // Country category is derived from the World Bank API in this UI.
+      // Do not let a seller write to the shared country_categories reference table.
       const {error:pe}=await db.from('seller_profiles').update({country_code:code,country_name:c.name,income_category:category}).eq('user_id',user.id);if(pe)throw pe;
       showCategory();await loadPlans();say('countryMessage',`${c.name}: World Bank ${group}. Category ${category} saved.`);
     }catch(e){say('countryMessage',e.message||'Country verification failed.',true);}
