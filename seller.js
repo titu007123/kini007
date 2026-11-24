@@ -43,11 +43,10 @@
       showMessage(profileMessage, "Could not load profile: " + error.message, true);
       return;
     }
-    if (data) {
-      profilePanel.hidden = true;
-      completePanel.hidden = false;
-      return;
-    }
+   if (data) {
+  window.location.href = "seller-dashboard.html";
+  return;
+}
     showMessage(profileMessage, "Signed in. Complete your seller profile below.");
   }
 
