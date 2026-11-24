@@ -1,21 +1,13 @@
-KINI007 Seller Portal - installation
+KINI007 Seller Management add-on (add-only)
 
-Files:
-- index.html (updated navigation; replaces the current index.html)
-- seller.html (new seller registration/login/profile page)
-- seller.css (new styles)
-- seller.js (new Supabase Auth/profile logic)
+1. Upload kini007-seller-management.js to the repository root (same folder as admin.html).
+2. In admin.html, add this one line AFTER the existing admin.js script and AFTER the Supabase SDK/config scripts:
+   <script src="kini007-seller-management.js"></script>
+3. Do not replace admin.html or admin.js. Do not remove existing analytics/performance/quality script lines.
+4. Commit the new JS file and the one-line admin.html edit.
 
-Upload all four files to the ROOT of the existing GitHub Pages repository.
-Keep the existing app.js, style.css, supabase-config.js, admin files and images unchanged.
-
-Before testing:
-1. In Supabase Authentication > URL Configuration, add the published seller page URL to Site URL / Redirect URLs:
-   https://titu007123.github.io/kini007/seller.html
-2. Confirm email verification settings and email templates.
-3. The SQL setup already created the seller_profiles table and private seller-identity-documents bucket.
-4. The current seller_profiles RLS policies allow a seller to access their own row. Admin read access and broader document review controls are not included yet.
-5. This phase only creates account/profile onboarding. Product upload, seller orders, payouts and commissions are later phases.
-
-Security note:
-The browser uses only the public publishable key from supabase-config.js. Never place a secret/service_role key in website files.
+The add-on creates a Seller Management navigation item and section after the existing Admin Panel loads.
+It checks the signed-in session and active admin_users row before reading seller_profiles.
+It uses the private seller-identity-documents bucket and creates 60-second signed URLs.
+It expects seller_profiles to contain identity_document_path. If your actual column has a different name, the page will show a database error; do not change database columns without checking first.
+Never put a Supabase service_role/secret key in browser code.
