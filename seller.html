@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#073b45">
+  <title>Seller Portal | Kini007</title>
+  <link rel="stylesheet" href="seller.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="index.html">KINI007 <span>SELLER PORTAL</span></a>
+    <a class="back-link" href="index.html">← Back to Store</a>
+  </header>
+
+  <main class="shell">
+    <section class="intro">
+      <p class="eyebrow">KINI007 MARKETPLACE</p>
+      <h1>Grow your business with Kini007.</h1>
+      <p>Create a seller account, complete your shop profile and manage your marketplace presence.</p>
+    </section>
+
+    <section class="panel" id="authPanel">
+      <div class="tabs" role="tablist" aria-label="Seller account">
+        <button class="tab active" id="signupTab" type="button">Create account</button>
+        <button class="tab" id="loginTab" type="button">Seller login</button>
+      </div>
+
+      <form id="signupForm" class="form">
+        <h2>Create your seller account</h2>
+        <label>Email address<input id="signupEmail" type="email" autocomplete="email" required></label>
+        <label>Password<input id="signupPassword" type="password" minlength="8" autocomplete="new-password" required><small>Use at least 8 characters.</small></label>
+        <label>Confirm password<input id="signupConfirm" type="password" minlength="8" autocomplete="new-password" required></label>
+        <button class="primary" type="submit">Create account</button>
+      </form>
+
+      <form id="loginForm" class="form" hidden>
+        <h2>Seller login</h2>
+        <label>Email address<input id="loginEmail" type="email" autocomplete="email" required></label>
+        <label>Password<input id="loginPassword" type="password" autocomplete="current-password" required></label>
+        <button class="primary" type="submit">Login</button>
+        <button class="text-button" id="forgotButton" type="button">Forgot password?</button>
+      </form>
+      <p id="authMessage" class="message" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="panel" id="profilePanel" hidden>
+      <div class="profile-head">
+        <div><p class="eyebrow">SELLER ONBOARDING</p><h2>Complete your seller profile</h2></div>
+        <button class="text-button" id="logoutButton" type="button">Log out</button>
+      </div>
+      <p class="notice">Your identity document is uploaded to a private storage area. Do not upload anyone else's document. Kini007 will use it only for seller account and verification purposes.</p>
+      <form id="profileForm" class="form">
+        <label>Full name<input id="fullName" autocomplete="name" required maxlength="150"></label>
+        <label>Phone number<input id="phone" type="tel" autocomplete="tel" required maxlength="30"></label>
+        <label>Shop name<input id="shopName" required maxlength="150"></label>
+        <label>Shop address<textarea id="address" rows="3" required maxlength="500"></textarea></label>
+        <label>Identity document type
+          <select id="identityType" required>
+            <option value="">Select one</option>
+            <option value="NID">National ID (NID)</option>
+            <option value="PASSPORT">Passport</option>
+          </select>
+        </label>
+        <label>Identity number<input id="identityNumber" required maxlength="100" autocomplete="off"></label>
+        <label>Identity document image/PDF<input id="identityFile" type="file" accept="image/jpeg,image/png,image/webp,application/pdf" required></label>
+        <small>Accepted: JPG, PNG, WEBP or PDF. Maximum file size: 5 MB.</small>
+        <button class="primary" type="submit">Save seller profile</button>
+      </form>
+      <p id="profileMessage" class="message" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="panel success-panel" id="completePanel" hidden>
+      <p class="eyebrow">ACCOUNT READY</p>
+      <h2>Your seller profile is saved.</h2>
+      <p>Your account is registered. Seller product listing and order-management features will be enabled in the next development phase.</p>
+      <button class="text-button" id="completeLogout" type="button">Log out</button>
+    </section>
+
+    <p class="footnote">By creating an account, you agree to use accurate information and submit only documents that belong to you. Never share your password or verification code.</p>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="seller.js"></script>
+</body>
+</html>

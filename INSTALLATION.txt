@@ -1,0 +1,21 @@
+KINI007 Seller Portal - installation
+
+Files:
+- index.html (updated navigation; replaces the current index.html)
+- seller.html (new seller registration/login/profile page)
+- seller.css (new styles)
+- seller.js (new Supabase Auth/profile logic)
+
+Upload all four files to the ROOT of the existing GitHub Pages repository.
+Keep the existing app.js, style.css, supabase-config.js, admin files and images unchanged.
+
+Before testing:
+1. In Supabase Authentication > URL Configuration, add the published seller page URL to Site URL / Redirect URLs:
+   https://titu007123.github.io/kini007/seller.html
+2. Confirm email verification settings and email templates.
+3. The SQL setup already created the seller_profiles table and private seller-identity-documents bucket.
+4. The current seller_profiles RLS policies allow a seller to access their own row. Admin read access and broader document review controls are not included yet.
+5. This phase only creates account/profile onboarding. Product upload, seller orders, payouts and commissions are later phases.
+
+Security note:
+The browser uses only the public publishable key from supabase-config.js. Never place a secret/service_role key in website files.
