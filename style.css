@@ -14,3 +14,29 @@
 @media(max-width:1200px){.site-header{grid-template-columns:220px minmax(200px,1fr) auto;gap:15px}.brand-logo{width:215px}.main-nav{gap:8px}.category-strip{grid-template-columns:repeat(5,minmax(0,1fr))}.product-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.footer-main{grid-template-columns:180px 1fr 1fr}.footer-links{grid-column:2/-1}}
 @media(max-width:850px){.site-header{height:auto;min-height:78px;grid-template-columns:180px 1fr;gap:10px;padding:9px 18px}.brand-logo{width:175px;height:55px}.header-search{grid-column:1/-1;grid-row:2;max-width:none;height:42px}.main-nav{justify-content:flex-end;gap:6px}.main-nav>a{font-size:12px;padding:8px}.theme-toggle{display:none}.install-btn{padding:9px 11px}.hero{width:calc(100% - 28px);min-height:340px;padding:30px}.hero-brand-art{width:34%;height:230px}.hero h1{font-size:44px}.category-strip,.products-section,.ebay-section,.app-promo,.about-strip{width:calc(100% - 28px)}.category-strip{grid-template-columns:repeat(5,minmax(0,1fr))}.product-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.app-device{right:8%}.footer-main{grid-template-columns:160px 1fr 1fr}.footer-description{font-size:12px}.footer-links{grid-column:1/-1;justify-content:flex-end}}
 @media(max-width:560px){.site-header{grid-template-columns:1fr auto}.brand-logo{width:165px;height:54px}.main-nav{gap:3px}.main-nav>a{padding:7px;font-size:11px}.main-nav>a:nth-child(3){display:none}.install-btn{font-size:11px;padding:9px}.install-btn span{display:none}.header-search{grid-column:1/-1}.hero{min-height:365px;padding:28px 22px;margin-top:14px}.hero-brand-art{display:none}.hero h1{font-size:42px;letter-spacing:-1.5px}.hero-description{font-size:14px}.trust-points{gap:9px;font-size:10px;flex-wrap:wrap}.trust-points i{display:none}.category-strip{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.category-tile{min-height:70px}.category-tile b{font-size:11px}.products-section{margin-bottom:30px}.section-heading h2{font-size:22px}.product-tools{align-items:flex-start;flex-direction:column}.product-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.card>.art{height:145px;min-height:145px;flex-basis:145px}.card-body{padding:10px}.card-body h3{font-size:12px;min-height:34px}.card-body p{font-size:10px;min-height:29px}.product-price{font-size:15px}.app-promo{padding:24px 20px;min-height:270px}.app-promo h2{font-size:22px;max-width:250px}.app-promo-copy{max-width:100%}.app-promo ul{display:block;line-height:2}.app-device{width:75px;height:130px;right:18px;top:auto;bottom:22px;opacity:.5}.about-strip{align-items:flex-start;padding:16px}.about-badge{display:none}.footer-main{grid-template-columns:1fr 1fr;gap:16px}.footer-brand img{width:130px;height:90px}.footer-description{border:0;padding:0;font-size:11px}.footer-social{grid-column:1/-1}.footer-links{grid-column:1/-1;justify-content:flex-start;flex-wrap:wrap}.footer-bottom{font-size:9px}.footer-bottom span:nth-child(2){width:100%}}
+
+
+/* KINI007 policy pages */
+.policy-page{background:var(--paper);min-height:100vh}
+.policy-header{background:#fff;border-bottom:1px solid var(--line);padding:16px clamp(20px,5vw,70px);display:flex;align-items:center;justify-content:space-between;gap:20px}
+.policy-brand{font:800 22px 'Manrope',sans-serif;color:var(--deep)}
+.policy-brand span{color:var(--teal2)}
+.policy-nav{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:13px;font-weight:700;color:var(--ink)}
+.policy-nav a:hover{color:var(--teal2)}
+.policy-wrap{width:min(100% - 32px,980px);margin:34px auto 50px}
+.policy-hero{background:linear-gradient(115deg,#052e3a,#08716f);color:#fff;padding:34px clamp(22px,5vw,48px);border-radius:20px;margin-bottom:22px}
+.policy-hero .eyebrow{color:#20e0cb}
+.policy-hero h1{font:800 clamp(30px,5vw,44px)/1.1 'Manrope',sans-serif;margin:0 0 10px}
+.policy-hero p{color:#d7ebed;margin:0}
+.policy-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:clamp(20px,4vw,38px);box-shadow:var(--shadow)}
+.policy-card h2{font:800 22px 'Manrope',sans-serif;color:var(--deep);margin:24px 0 10px}
+.policy-card h2:first-child{margin-top:0}
+.policy-card h3{font:700 16px 'Manrope',sans-serif;margin:20px 0 7px;color:var(--ink)}
+.policy-card p,.policy-card li{color:#526b77;line-height:1.75}
+.policy-card ul{padding-left:22px}
+.policy-meta{font-size:13px;color:var(--muted);margin:0 0 22px}
+.policy-contact{background:#effaf7;border:1px solid #d4f1e9;border-radius:12px;padding:16px;margin-top:20px}
+.policy-contact p{margin:5px 0}
+.policy-footer{background:#052e39;color:#dcebed;padding:22px;text-align:center;font-size:12px}
+.policy-footer a{color:#fff;text-decoration:underline}
+@media(max-width:650px){.policy-header{align-items:flex-start;flex-direction:column}.policy-nav{gap:8px 12px}.policy-wrap{margin-top:18px}.policy-hero{padding:26px 22px}}
