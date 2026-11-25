@@ -40,3 +40,30 @@
 .policy-footer{background:#052e39;color:#dcebed;padding:22px;text-align:center;font-size:12px}
 .policy-footer a{color:#fff;text-decoration:underline}
 @media(max-width:650px){.policy-header{align-items:flex-start;flex-direction:column}.policy-nav{gap:8px 12px}.policy-wrap{margin-top:18px}.policy-hero{padding:26px 22px}}
+/* KINI007 FINAL COVER — paste this block at the END of style.css */
+.hero {
+  background-image:
+    linear-gradient(90deg, rgba(3, 12, 20, 0.12), rgba(3, 12, 20, 0.04)),
+    url("kini007-cover-final.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  min-height: clamp(380px, 42vw, 580px);
+  border: 1px solid rgba(0, 220, 205, 0.22);
+}
+.hero:after,
+.hero-brand-art {
+  display: none;
+}
+@media (max-width: 850px) {
+  .hero {
+    min-height: 430px;
+    background-position: center;
+  }
+}
+@media (max-width: 560px) {
+  .hero {
+    min-height: 450px;
+    background-position: 48% center;
+  }
+}
