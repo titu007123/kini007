@@ -67,3 +67,73 @@
     background-position: 48% center;
   }
 }
+/* KINI007 FINAL HERO FIX
+   Paste this block at the VERY END of style.css.
+   Keeps the selected cover artwork and its built-in KINI007 logo + SMART DISCOVERY slogan.
+   Removes the duplicate old hero text and moves the two existing action buttons to the lower-right.
+*/
+.hero {
+  position: relative !important;
+  overflow: hidden;
+}
+
+.hero .hero-content {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  max-width: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  display: block !important;
+  pointer-events: none !important;
+}
+
+.hero .hero-content > .eyebrow,
+.hero .hero-content > h1,
+.hero .hero-content > .hero-description,
+.hero .hero-content > .trust-points {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+.hero .hero-content > .hero-actions {
+  position: absolute !important;
+  right: clamp(16px, 3vw, 44px) !important;
+  bottom: clamp(16px, 2.5vw, 30px) !important;
+  left: auto !important;
+  top: auto !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  justify-content: flex-end !important;
+  gap: 10px !important;
+  margin: 0 !important;
+  pointer-events: auto !important;
+  z-index: 5 !important;
+}
+
+.hero .hero-content > .hero-actions .button {
+  box-shadow: 0 5px 18px rgba(0, 0, 0, .32) !important;
+  backdrop-filter: blur(7px);
+}
+
+.hero .hero-content > .hero-actions .button-outline {
+  background: rgba(3, 15, 22, .78) !important;
+}
+
+.hero .hero-brand-art {
+  display: none !important;
+}
+
+@media (max-width: 560px) {
+  .hero .hero-content > .hero-actions {
+    right: 12px !important;
+    bottom: 12px !important;
+    left: 12px !important;
+    justify-content: center !important;
+    gap: 8px !important;
+  }
+  .hero .hero-content > .hero-actions .button {
+    padding: 10px 12px !important;
+    font-size: 12px !important;
+  }
+}
