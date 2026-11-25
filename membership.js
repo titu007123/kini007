@@ -11,13 +11,15 @@
     db=window.supabase.createClient(cfg.url,cfg.publishableKey);
     const {data:{session},error}=await db.auth.getSession();if(error)throw error;if(!session?.user){location.href='seller.html';return;}user=session.user;
     const {data:profile,error:pe}=await db.from('seller_profiles').select('country_code,country_name,income_category').eq('user_id',user.id).maybeSingle();if(pe)throw pe;
-    if(profile){$('countryCode').value=(profile.country_code||'').trim();$('countryName').value=profile.country_name||'';if(profile.income_category)category=Number(profile.income_category);}
+    if(profile){$('countrySelect').value=(profile.country_code||'').trim().toUpperCase();$('countryName').value=profile.country_name||'';if(profile.income_category)category=Number(profile.income_category);}
+    updateCountryPreview();$('countrySelect').addEventListener('change',()=>{$('countryName').value=$('countrySelect').selectedOptions[0]?.dataset.name||'';updateCountryPreview();});
     showCategory();await loadPlans();await loadHistory();
     $('notice').textContent='Choose a plan. Membership activates only after admin payment verification.';$('notice').className='notice success';
   }
   function showCategory(){$('categoryLabel').textContent='Pricing category: '+(category?'Category '+category:'Not verified');}
+  function updateCountryPreview(){const code=$('countrySelect').value;$('countryCodePreview').textContent=code?`ISO code: ${code}`:'ISO code: —';}
   async function verifyCountry(){
-    const code=$('countryCode').value.trim().toUpperCase();if(!/^[A-Z]{2}$/.test(code)){say('countryMessage','Enter a valid 2-letter ISO country code.',true);return;}
+    const code=$('countrySelect').value.trim().toUpperCase();if(!/^[A-Z]{2}$/.test(code)){say('countryMessage','Please select your country from the list.',true);return;}
     say('countryMessage','Checking World Bank classification…');
     try{
       const res=await fetch(`https://api.worldbank.org/v2/country/${encodeURIComponent(code)}?format=json`);if(!res.ok)throw Error('World Bank API unavailable');const data=await res.json();const c=data?.[1]?.[0];if(!c||!c.incomeLevel?.id)throw Error('Country not found in World Bank data.');
@@ -34,13 +36,27 @@
     const grouped={};for(const r of data||[]){(grouped[r.plan_code]||= {})[r.duration_code]=Number(r.amount_usd);}
     host.innerHTML=Object.keys(names).map(plan=>`<article class="plan-card"><h3>${names[plan]}</h3><p>${plan==='starter'?'For new sellers':plan==='growth'?'For growing shops':'For established sellers'}</p><label>Subscription period<select data-period="${plan}">${Object.keys(periods).map(k=>`<option value="${k}">${periods[k]} — $${Number(grouped[plan]?.[k]??0).toFixed(2)}</option>`).join('')}</select></label><button type="button" data-choose="${plan}">Choose ${names[plan]}</button></article>`).join('');
   }
-  async function choose(plan){if(!category){say('paymentMessage','Verify your country first.',true);return;}const duration=$(`[data-period="${plan}"]`).value;const {data,error}=await db.from('kini007_membership_prices').select('amount_usd').eq('pricing_category',category).eq('plan_code',plan).eq('duration_code',duration).single();if(error)throw error;selected={plan,duration,amount:Number(data.amount_usd)};$('paymentBox').hidden=false;$('selectedTitle').textContent=`${names[plan]} — ${periods[duration]}`;$('selectedPrice').textContent=`Amount due: $${selected.amount.toFixed(2)} USD`;$('paymentReference').value='';say('paymentMessage','');$('paymentBox').scrollIntoView({behavior:'smooth'});}
+  async function choose(plan){
+    if(!category){say('paymentMessage','Verify your country first.',true);return;}
+    const periodSelect=document.querySelector(`[data-period="${plan}"]`);
+    if(!periodSelect)throw Error('Subscription period selector was not found.');
+    const duration=periodSelect.value;
+    const {data,error}=await db.from('kini007_membership_prices').select('amount_usd').eq('pricing_category',category).eq('plan_code',plan).eq('duration_code',duration).single();
+    if(error)throw error;
+    selected={plan,duration,amount:Number(data.amount_usd)};
+    $('paymentBox').hidden=false;
+    $('selectedTitle').textContent=`${names[plan]} — ${periods[duration]}`;
+    $('selectedPrice').textContent=`Amount due: $${selected.amount.toFixed(2)} USD`;
+    $('paymentReference').value='';
+    say('paymentMessage','');
+    $('paymentBox').scrollIntoView({behavior:'smooth'});
+  }
   async function submitPayment(){if(!selected)return;const ref=$('paymentReference').value.trim();if(ref.length<4){say('paymentMessage','Enter a valid transaction/reference ID.',true);return;}$('submitPayment').disabled=true;say('paymentMessage','Submitting…');try{
       const {data:membership,error:me}=await db.from('kini007_memberships').insert({seller_id:user.id,pricing_category:category,plan_code:selected.plan,duration_code:selected.duration,amount_usd:selected.amount,status:'pending'}).select('id').single();if(me)throw me;
       const {error:pay}=await db.from('kini007_membership_payments').insert({membership_id:membership.id,seller_id:user.id,payment_method:$('paymentMethod').value,transaction_reference:ref,payer_note:$('paymentNote').value.trim()||null,status:'pending'});if(pay)throw pay;
       say('paymentMessage','Submitted. Your membership is PENDING until an admin verifies the payment.');await loadHistory();
     }catch(e){say('paymentMessage',e.message||'Could not submit payment.',true);}finally{$('submitPayment').disabled=false;}}
   async function loadHistory(){const {data,error}=await db.from('kini007_memberships').select('plan_code,duration_code,amount_usd,status,expires_at,created_at').eq('seller_id',user.id).order('created_at',{ascending:false});if(error)throw error;$('history').innerHTML=(data||[]).length?(data||[]).map(x=>`<tr><td>${esc(names[x.plan_code]||x.plan_code)}</td><td>${esc(periods[x.duration_code]||x.duration_code)}</td><td>$${Number(x.amount_usd).toFixed(2)}</td><td>${esc(x.status)}</td><td>${x.expires_at?new Date(x.expires_at).toLocaleDateString():'—'}</td></tr>`).join(''):'<tr><td colspan="5">No membership history yet.</td></tr>';}
-  $('saveCountry').addEventListener('click',verifyCountry);$('plans').addEventListener('click',e=>{const b=e.target.closest('[data-choose]');if(b)choose(b.dataset.choose).catch(x=>say('paymentMessage',x.message,true));});$('submitPayment').addEventListener('click',submitPayment);$('logout').addEventListener('click',async()=>{await db.auth.signOut();location.href='seller.html';});
+  $('saveCountry').addEventListener('click',verifyCountry);$('plans').addEventListener('click',e=>{const b=e.target.closest('[data-choose]');if(b)choose(b.dataset.choose).catch(x=>{const msg=x.message||'Could not select this plan.';say('notice',msg,true);say('paymentMessage',msg,true);});});$('submitPayment').addEventListener('click',submitPayment);$('logout').addEventListener('click',async()=>{await db.auth.signOut();location.href='seller.html';});
   init().catch(e=>{$('notice').textContent=e.message||'Membership page failed to load.';$('notice').className='notice error';});
 })();
