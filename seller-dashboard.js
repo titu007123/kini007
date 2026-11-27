@@ -6,8 +6,9 @@
   const notice = (msg, kind = "") => { const el=$("sellerNotice"); el.textContent=msg; el.className="notice"+(kind?" "+kind:""); };
   const formMessage = (msg, ok=false) => { $("sellerFormMessage").textContent=msg; $("sellerFormMessage").style.color=ok?"#087b5e":"#b42318"; };
   const validHttpUrl = value => { try { const u=new URL(value); return ["http:","https:"].includes(u.protocol) ? u.href : ""; } catch { return ""; } };
-  let db, currentUser, sellerProfile, products=[], existingImageUrl="";
+  let db, currentUser, sellerProfile, products=[], existingImageUrl="", existingVideoUrl="";
   const bucket = "seller-product-images";
+  const videoBucket = "seller-product-videos";
 
   function escapeText(value) { return String(value ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
 
@@ -41,6 +42,9 @@
     $("sellerCancelEdit").hidden=true;
     $("spImage").required=true;
     existingImageUrl="";
+    existingVideoUrl="";
+    $("sellerVideoPreview").hidden=true;
+    $("sellerPreviewVideo").removeAttribute("src");
     $("sellerImagePreview").hidden=true;
     $("sellerPreviewImg").removeAttribute("src");
     formMessage("");
@@ -49,7 +53,7 @@
   async function loadProducts() {
     $("sellerProducts").innerHTML='<p class="muted">Loading your products…</p>';
     const {data,error}=await db.from("products")
-      .select("id,name,description,category,brand,price,currency,image_url,product_url,platform,region,is_active,created_at,seller_id")
+      .select("id,name,description,category,brand,price,currency,image_url,video_url,product_url,platform,region,is_active,created_at,seller_id")
       .eq("seller_id",currentUser.id).order("created_at",{ascending:false});
     if (error) {
       $("sellerProducts").innerHTML='<p class="empty">Products could not be loaded.</p>';
@@ -90,11 +94,13 @@
     $("spPrice").value=p.price??"";
     $("spDescription").value=p.description||"";
     existingImageUrl=p.image_url||"";
+    existingVideoUrl=p.video_url||"";
     $("spImage").required=false;
     $("productFormHeading").textContent="Edit product";
     $("sellerSaveProduct").textContent="Save changes";
     $("sellerCancelEdit").hidden=false;
     if(existingImageUrl){$("sellerPreviewImg").src=existingImageUrl;$("sellerImageHint").textContent="Current image (choose a new file to replace it)";$("sellerImagePreview").hidden=false;}
+    if(existingVideoUrl){$("sellerPreviewVideo").src=existingVideoUrl;$("sellerVideoHint").textContent="Current video (choose a new file to replace it)";$("sellerVideoPreview").hidden=false;}
     formMessage("");
     window.scrollTo({top:0,behavior:"smooth"});
   }
@@ -112,6 +118,17 @@
     return data.publicUrl;
   }
 
+  async function uploadVideo(file) {
+    if (!file) return existingVideoUrl || null;
+    if (!["video/mp4","video/webm"].includes(file.type)) throw new Error("শুধু MP4 বা WEBM video upload করুন।");
+    if (file.size > 50 * 1024 * 1024) throw new Error("Video size 50 MB-এর বেশি হতে পারবে না।");
+    const ext = file.type === "video/webm" ? "webm" : "mp4";
+    const path = `${currentUser.id}/${Date.now()}-${crypto.randomUUID()}.${ext}`;
+    const { error } = await db.storage.from(videoBucket).upload(path, file, { contentType: file.type, upsert: false });
+    if (error) throw error;
+    return db.storage.from(videoBucket).getPublicUrl(path).data.publicUrl;
+  }
+
   async function saveProduct(event) {
     event.preventDefault();
     const name=$("spName").value.trim(),description=$("spDescription").value.trim();
@@ -121,9 +138,10 @@
     $("sellerSaveProduct").disabled=true; formMessage("পণ্য সংরক্ষণ হচ্ছে…",true);
     try {
       const imageUrl=await uploadImage(file);
+      const videoUrl=await uploadVideo($("spVideo").files[0]);
       const payload={
         name,description,category:$("spCategory").value,brand:$("spBrand").value.trim()||null,
-        price,currency:"BDT",image_url:imageUrl,product_url:null,
+        price,currency:"BDT",image_url:imageUrl,video_url:videoUrl,product_url:null,
         platform:"KINI007 Seller Marketplace",region:"Bangladesh",
         is_active:true,seller_id:currentUser.id
       };
@@ -170,6 +188,16 @@
     $("sellerPreviewImg").src=URL.createObjectURL(file);
     $("sellerImageHint").textContent=file.name;
     $("sellerImagePreview").hidden=false;
+  });
+  $("spVideo").addEventListener("change",()=>{
+    const file=$("spVideo").files[0]; if(!file)return;
+    if(!["video/mp4","video/webm"].includes(file.type)||file.size>50*1024*1024){$("spVideo").value="";formMessage("শুধু MP4/WEBM এবং সর্বোচ্চ 50 MB video upload করা যাবে।");return;}
+    $("sellerPreviewVideo").src=URL.createObjectURL(file);
+    $("sellerVideoHint").textContent=file.name;
+    $("sellerVideoPreview").hidden=false;
+  });
+  $("removeProductVideo").addEventListener("click",()=>{
+    existingVideoUrl="";$("spVideo").value="";$("sellerPreviewVideo").removeAttribute("src");$("sellerVideoPreview").hidden=true;$("sellerVideoHint").textContent="";
   });
   $("sellerLogout").addEventListener("click",async()=>{if(db)await db.auth.signOut();location.href="seller.html";});
 
