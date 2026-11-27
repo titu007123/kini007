@@ -344,9 +344,10 @@
 
   document.querySelectorAll(".tab").forEach(button => {
     button.addEventListener("click", () => {
-      document.querySelector(".tab.active")?.classList.remove("active");
-      button.classList.add("active");
       category = button.dataset.cat || "all";
+      document.querySelectorAll(".tab").forEach(tab => {
+        tab.classList.toggle("active", tab.dataset.cat === category);
+      });
       render();
     });
   });
