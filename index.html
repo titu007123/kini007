@@ -85,6 +85,11 @@
       <button class="tab filter-pill" data-cat="global">Global</button>
       <button class="tab filter-pill" data-cat="fashion">Fashion</button>
       <button class="tab filter-pill" data-cat="tech">Technology</button>
+      <button class="tab filter-pill" data-cat="mobile">Mobile</button>
+      <button class="tab filter-pill" data-cat="accessories">Accessories</button>
+      <button class="tab filter-pill" data-cat="home">Home &amp; Living</button>
+      <button class="tab filter-pill" data-cat="health">Health &amp; Fitness</button>
+      <button class="tab filter-pill" data-cat="books">Books &amp; Study</button>
       <button class="tab filter-pill" data-cat="diamond">Diamond</button>
       <button class="tab filter-pill" data-cat="stories">Stories</button>
       <button class="tab filter-pill" data-cat="islamic">Islamic</button>
@@ -136,12 +141,6 @@
 <script src="app.js"></script>
 <script src="video-ads.js"></script>
 <script>
-  document.querySelectorAll(".category-tile, .filter-pill").forEach(button => {
-    button.addEventListener("click", () => {
-      document.querySelectorAll(".category-tile, .filter-pill").forEach(item => item.classList.remove("active"));
-      document.querySelectorAll('[data-cat="' + button.dataset.cat + '"]').forEach(item => item.classList.add("active"));
-    });
-  });
   document.querySelector(".theme-toggle")?.addEventListener("click", () => document.body.classList.toggle("dark-mode"));
   document.querySelector("#promoInstall")?.addEventListener("click", () => document.querySelector("#installBtn")?.click());
 </script>
