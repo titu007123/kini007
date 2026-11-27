@@ -161,6 +161,7 @@
     const fragment = document.createDocumentFragment();
     visible.forEach(product => {
       const card = make("article", "card");
+      card.dataset.productId = String(product.id);
       const imageUrl = safeUrl(product.image_url);
       if (imageUrl) {
         const imageWrap = make("div", "art image-art");
@@ -178,8 +179,43 @@
         card.appendChild(make("div", "art", "🛍️"));
       }
 
+      if (Array.isArray(product.gallery_urls) && product.gallery_urls.length) {
+        const gallery = make("div", "k7-product-gallery");
+        product.gallery_urls.slice(0, 4).forEach(url => {
+          const safe = safeUrl(url);
+          if (!safe) return;
+          const thumb = make("img", "k7-gallery-thumb");
+          thumb.src = safe; thumb.alt = product.name || "Product gallery"; thumb.loading = "lazy";
+          gallery.appendChild(thumb);
+        });
+        if (gallery.childElementCount) card.appendChild(gallery);
+      }
+      if (product.video_url) {
+        const videoUrl = safeUrl(product.video_url);
+        if (videoUrl) {
+          const videoWrap = make("div", "k7-product-video");
+          let embed = "";
+          try {
+            const parsed = new URL(videoUrl);
+            const videoId = parsed.hostname.includes("youtu.be") ? parsed.pathname.slice(1) : parsed.searchParams.get("v");
+            if (videoId) embed = "https://www.youtube-nocookie.com/embed/" + encodeURIComponent(videoId);
+          } catch (_) {}
+          if (embed) {
+            const frame = document.createElement("iframe");
+            frame.src = embed; frame.title = product.name + " video"; frame.loading = "lazy";
+            frame.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+            frame.allowFullscreen = true; videoWrap.appendChild(frame);
+          } else {
+            const player = document.createElement("video");
+            player.controls = true; player.playsInline = true; player.preload = "metadata";
+            const source = document.createElement("source"); source.src = videoUrl;
+            player.appendChild(source); videoWrap.appendChild(player);
+          }
+          card.appendChild(videoWrap);
+        }
+      }
       const body = make("div", "card-body");
-      const label = [product.platform, product.category].filter(Boolean).join(" • ") || product.region || "Kini007";
+      const label = [product.platform, product.subcategory || product.category].filter(Boolean).join(" • ") || product.region || "Kini007";
       body.appendChild(make("span", "badge", label));
       body.appendChild(make("h3", "", product.name || "Unnamed product"));
       if (product.description) body.appendChild(make("p", "", product.description));
@@ -311,7 +347,7 @@
     status.textContent = text("loading");
     grid.replaceChildren(make("div", "empty", text("loading")));
 
-    const endpoint = `${SUPABASE_URL}/rest/v1/products?select=id,name,description,category,brand,price,currency,image_url,product_url,platform,region,is_active,created_at&is_active=eq.true&order=created_at.desc&limit=10000`;
+    const endpoint = `${SUPABASE_URL}/rest/v1/products?select=id,name,description,category,brand,price,currency,image_url,product_url,platform,region,is_active,created_at,video_url,gallery_urls,specifications,tags,is_featured,subcategory,sku&is_active=eq.true&order=created_at.desc&limit=10000`;
     try {
       const response = await fetch(endpoint, {
         method: "GET",

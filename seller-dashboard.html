@@ -56,6 +56,8 @@
             <label class="wide">Description *<textarea id="spDescription" rows="4" maxlength="3000" required placeholder="Describe the product, condition, key features and what is included."></textarea></label>
             <label class="wide">Product image *<input id="spImage" type="file" accept="image/jpeg,image/png,image/webp" required><small>JPG, PNG or WEBP. Maximum 5 MB. Product images are public on the store.</small></label>
             <div class="wide preview-wrap" id="sellerImagePreview" hidden><img id="sellerPreviewImg" alt="Product preview"><span id="sellerImageHint"></span></div>
+            <label class="wide">Product video (optional)<input id="spVideo" type="file" accept="video/mp4,video/webm"><small>MP4 or WEBM. Maximum 50 MB. Video appears on the public product card.</small></label>
+            <div class="wide media-preview" id="sellerVideoPreview" hidden><video id="sellerPreviewVideo" controls playsinline preload="metadata"></video><span id="sellerVideoHint"></span><button id="removeProductVideo" class="outline-btn" type="button">Remove video</button></div>
           </div>
           <div class="form-actions">
             <button id="sellerSaveProduct" class="primary-btn" type="submit">Publish product</button>
