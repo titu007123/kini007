@@ -35,9 +35,13 @@ grant select on public.product_categories to anon, authenticated;
 grant insert, update, delete on public.product_categories to authenticated;
 drop policy if exists "Public can view active product categories" on public.product_categories;
 drop policy if exists "Admins manage product categories" on public.product_categories;
+drop policy if exists "Authenticated admins can view all product categories" on public.product_categories;
 create policy "Public can view active product categories"
   on public.product_categories for select to anon, authenticated
-  using (is_active = true or public.is_kini007_admin());
+  using (is_active = true);
+create policy "Authenticated admins can view all product categories"
+  on public.product_categories for select to authenticated
+  using (public.is_kini007_admin());
 create policy "Admins manage product categories"
   on public.product_categories for all to authenticated
   using (public.is_kini007_admin()) with check (public.is_kini007_admin());
