@@ -178,6 +178,14 @@
         card.appendChild(make("div", "art", "🛍️"));
       }
 
+      const videoUrl = safeUrl(product.video_url);
+      if (videoUrl) {
+        const videoWrap = make("div", "art video-art");
+        const video = make("video", "product-video");
+        video.src = videoUrl; video.controls = true; video.playsInline = true; video.preload = "metadata";
+        video.setAttribute("aria-label", `${product.name || "Product"} video`);
+        videoWrap.appendChild(video); card.appendChild(videoWrap);
+      }
       const body = make("div", "card-body");
       const label = [product.platform, product.category].filter(Boolean).join(" • ") || product.region || "Kini007";
       body.appendChild(make("span", "badge", label));
@@ -311,7 +319,7 @@
     status.textContent = text("loading");
     grid.replaceChildren(make("div", "empty", text("loading")));
 
-    const endpoint = `${SUPABASE_URL}/rest/v1/products?select=id,name,description,category,brand,price,currency,image_url,product_url,platform,region,is_active,created_at&is_active=eq.true&order=created_at.desc&limit=10000`;
+    const endpoint = `${SUPABASE_URL}/rest/v1/products?select=id,name,description,category,brand,price,currency,image_url,video_url,product_url,platform,region,is_active,created_at&is_active=eq.true&order=created_at.desc&limit=10000`;
     try {
       const response = await fetch(endpoint, {
         method: "GET",
